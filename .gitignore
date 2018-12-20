@@ -1,4 +1,4 @@
-dest
+dist
 
 .vscode/*
 !.vscode/settings.json
