@@ -1,0 +1,23 @@
+{
+  "name": "arcgis-server-browser",
+  "version": "0.0.1",
+  "description": "Web application for browsing ArcGIS Servers.",
+  "main": "index.html",
+  "scripts": {
+    "prepare": "tsc",
+    "serve": "serve",
+    "watch": "tsc -w"
+  },
+  "private": true,
+  "keywords": [],
+  "author": "",
+  "license": "Unlicense",
+  "devDependencies": {
+    "prettier": "^1.15.3",
+    "serve": "^10.1.1",
+    "tslint": "^5.12.0",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.2.2"
+  }
+}
