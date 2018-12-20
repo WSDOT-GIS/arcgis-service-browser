@@ -5,6 +5,7 @@
   "main": "index.html",
   "scripts": {
     "prepare": "tsc",
+    "lint": "tslint -p . --fix",
     "serve": "serve",
     "watch": "tsc -w"
   },

@@ -43,6 +43,9 @@ function createLink(linkInfo: ILinkInfo) {
  * @param listType Optional. Specifies the type of HTML list: "ul" (the default) or "ol".
  */
 function createLinkList(linkInfos: ILinkInfo[], listType: "ul" | "ol" = "ul") {
+  if (linkInfos.length === 0) {
+    return null;
+  }
   const list = document.createElement(listType);
   const listItems = linkInfos.map(linkInfo => {
     const li = document.createElement("li");
@@ -56,18 +59,88 @@ function createLinkList(linkInfos: ILinkInfo[], listType: "ul" | "ol" = "ul") {
   return list;
 }
 
+function arrayToTable(objects: any[]): HTMLTableElement {
+  const table = document.createElement("table");
+  const head = table.createTHead();
+  const hRow = head.insertRow();
+
+  const body = table.createTBody();
+
+  // Get list of all field names.
+  const fieldNames = new Set<string>();
+  for (const obj of objects) {
+    for (const propName in obj) {
+      if (obj.hasOwnProperty(propName)) {
+        fieldNames.add(propName);
+      }
+    }
+  }
+
+  // Add a table heading cell for each property.
+  fieldNames.forEach(fn => {
+    const th = document.createElement("th");
+    th.innerText = fn;
+    hRow.appendChild(th);
+  });
+
+  objects.forEach(o => {
+    const bRow = body.insertRow();
+    fieldNames.forEach(fn => {
+      const value = o[fn];
+      const cell = bRow.insertCell();
+      cell.innerText = value;
+    });
+  });
+
+  return table;
+}
+
+function arrayToElement(arr: any[], propertyName?: string) {
+  if (propertyName && /^(fields)|(layers)$/.test(propertyName)) {
+    return arrayToTable(arr);
+  }
+
+  if (propertyName === "color") {
+    arr[3] = arr[3] / 255;
+    const content = `rgba(${arr.join(",")})`;
+    const span = document.createElement("span");
+    span.style.color = content;
+    span.innerText = content;
+    return span;
+  }
+
+  const list = document.createElement("ol");
+  arr
+    .map(item => {
+      const element = toDefinitionList(item);
+      const li = document.createElement("li");
+      li.appendChild(element);
+      return li;
+    })
+    .forEach(li => list.appendChild(li));
+  return list;
+}
+
 /**
  * Converts an object into a DOM node.
  * @param o any type of JavaScript object or value.
  * @returns if the input is a standard object, returned value will be an HTMLDListElement.
  * For other types, such as string, number, boolean, or Date, a Text element will be returned
  */
-function toDefinitionList(o: any) {
+function toDefinitionList(o: any, propertyName?: string) {
   if (o == null) {
     return document.createTextNode(o === null ? "null" : "undefined");
   }
 
-  if (/^(string)|(number)|(boolean)$/.test(typeof o) || o instanceof Date) {
+  if (Array.isArray(o)) {
+    return arrayToElement(o, propertyName);
+  }
+
+  if (typeof o === "boolean") {
+    return document.createTextNode(o ? "☑" : "☐");
+  }
+
+  if (/^(string)|(number)$/.test(typeof o) || o instanceof Date) {
     return document.createTextNode(`${o}`);
   }
 
@@ -79,7 +152,7 @@ function toDefinitionList(o: any) {
       const dt = document.createElement("dt");
       dt.innerText = key;
       const dd = document.createElement("dd");
-      dd.appendChild(toDefinitionList(value));
+      dd.appendChild(toDefinitionList(value, key));
 
       [dt, dd].forEach(element => dl.appendChild(element));
     }
@@ -149,7 +222,9 @@ function createDom(serverInfo: IServerInfo) {
     const dt = document.createElement("dt");
     const dd = document.createElement("dd");
     dt.innerText = "Folders";
-    dt.appendChild(folderList);
+    if (folderList) {
+      dd.appendChild(folderList);
+    }
 
     dl.appendChild(dt);
     dl.appendChild(dd);
@@ -161,7 +236,9 @@ function createDom(serverInfo: IServerInfo) {
     const dt = document.createElement("dt");
     const dd = document.createElement("dd");
     dt.innerText = "Services";
-    dt.appendChild(serviceList);
+    if (serviceList) {
+      dd.appendChild(serviceList);
+    }
 
     dl.appendChild(dt);
     dl.appendChild(dd);
@@ -177,7 +254,7 @@ function createDom(serverInfo: IServerInfo) {
       dt.innerText = propName;
 
       const dd = document.createElement("dd");
-      const element = toDefinitionList(value);
+      const element = toDefinitionList(value, propName);
       dd.appendChild(element);
     }
   }
