@@ -19,7 +19,7 @@ interface ILinkInfo {
  */
 interface IServerInfo {
   [key: string]: any;
-  currentVersion: number;
+  currentVersion?: number;
   folders?: ILinkInfo[];
   services?: ILinkInfo[];
 }
@@ -133,19 +133,21 @@ function createDom(serverInfo: IServerInfo) {
 
   frag.append(dl);
 
-  let dt = document.createElement("dt");
-  dt.innerText = "Current Version";
-  let dd = document.createElement("dd");
-  dd.innerText = serverInfo.currentVersion as any;
+  if (serverInfo.currentVersion) {
+    const dt = document.createElement("dt");
+    dt.innerText = "Current Version";
+    const dd = document.createElement("dd");
+    dd.innerText = serverInfo.currentVersion as any;
 
-  dl.appendChild(dt);
-  dl.appendChild(dd);
+    dl.appendChild(dt);
+    dl.appendChild(dd);
+  }
 
   if (serverInfo.folders) {
     // Add folder list
     const folderList = createLinkList(serverInfo.folders);
-    dt = document.createElement("dt");
-    dd = document.createElement("dd");
+    const dt = document.createElement("dt");
+    const dd = document.createElement("dd");
     dt.innerText = "Folders";
     dt.appendChild(folderList);
 
@@ -156,13 +158,28 @@ function createDom(serverInfo: IServerInfo) {
   // Add service list
   if (serverInfo.services) {
     const serviceList = createLinkList(serverInfo.services);
-    dt = document.createElement("dt");
-    dd = document.createElement("dd");
+    const dt = document.createElement("dt");
+    const dd = document.createElement("dd");
     dt.innerText = "Services";
     dt.appendChild(serviceList);
 
     dl.appendChild(dt);
     dl.appendChild(dd);
+  }
+
+  for (const propName in serverInfo) {
+    if (serverInfo.hasOwnProperty(propName)) {
+      if (/^(folders)|(services)/.test(propName)) {
+        continue;
+      }
+      const value = serverInfo[propName];
+      const dt = document.createElement("dt");
+      dt.innerText = propName;
+
+      const dd = document.createElement("dd");
+      const element = toDefinitionList(value);
+      dd.appendChild(element);
+    }
   }
 
   return frag;
