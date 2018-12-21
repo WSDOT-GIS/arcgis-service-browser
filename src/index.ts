@@ -1,11 +1,19 @@
+import { Color } from "@esri/arcgis-rest-common-types";
+import { colorToDom } from "./colorUtils";
 import {
   IDatumTransformation,
-  IGeoTransform,
   ILinkInfo,
   IServerInfo,
   IService
 } from "./interfaces";
-import { getServerRoot, getServiceUrl, getServiceUrlParts } from "./urlUtils";
+import { createLegendList, getLegend } from "./legend";
+import { symbolToDom } from "./symbols";
+import {
+  getServerRoot,
+  getServiceUrl,
+  getServiceUrlParts,
+  wrapUrl
+} from "./urlUtils";
 
 function arrayToTable(objects: any[], propertyName?: string) {
   const table = document.createElement("table");
@@ -48,12 +56,17 @@ function arrayToTable(objects: any[], propertyName?: string) {
         a.innerText = value;
         cell.appendChild(a);
       } else if (fn === "domain") {
-        const domElement = toDefinitionList(value);
+        const domElement = toDomElement(value);
         if (domElement) {
           cell.appendChild(domElement);
         }
-      } else {
+      } else if (/^(string)|(number)/.test(typeof value)) {
         cell.innerText = value;
+      } else {
+        const cellContentElement = toDomElement(value, fn);
+        if (cellContentElement) {
+          cell.appendChild(cellContentElement);
+        }
       }
     });
   });
@@ -63,34 +76,51 @@ function arrayToTable(objects: any[], propertyName?: string) {
 }
 
 function arrayToElement(arr: any[], propertyName?: string) {
-  if (
-    propertyName &&
-    /^(fields)|(layers)|(tables)|(codedValues)|(lods)$/.test(propertyName)
-  ) {
-    return arrayToTable(arr, propertyName);
-  }
+  if (propertyName) {
+    if (
+      /^(fields)|(layers)|(tables)|(codedValues)|(lods)|(indexes)|(relationships)|(((symbol)|(sub))Layers)|((sub)?types)$/.test(
+        propertyName
+      )
+    ) {
+      return arrayToTable(arr, propertyName);
+    }
 
-  if (propertyName && /^(folders)|(services)/.test(propertyName)) {
-    const linkList = document.createElement("ul");
-    arr.forEach((linkItem: ILinkInfo) => {
-      const a = document.createElement("a");
-      const urlParams = new URLSearchParams({ url: linkItem.url });
-      a.href = new URL("?" + urlParams.toString(), location.href).toString();
-      a.textContent = linkItem.name;
-      const li = document.createElement("li");
-      li.appendChild(a);
-      linkList.appendChild(li);
-    });
-    return linkList;
-  }
+    if (/^(folders)|(services)/.test(propertyName)) {
+      const linkList = document.createElement("ul");
+      arr.forEach((linkItem: ILinkInfo) => {
+        const a = document.createElement("a");
+        const urlParams = new URLSearchParams({ url: linkItem.url });
+        a.href = new URL("?" + urlParams.toString(), location.href).toString();
+        a.textContent = linkItem.name;
+        const li = document.createElement("li");
+        li.appendChild(a);
+        linkList.appendChild(li);
+      });
+      return linkList;
+    }
 
-  if (propertyName === "color") {
-    arr[3] = arr[3] / 255;
-    const content = `rgba(${arr.join(",")})`;
-    const span = document.createElement("span");
-    span.style.color = content;
-    span.innerText = content;
-    return span;
+    if (propertyName === "legend") {
+      return createLegendList(arr);
+    }
+
+    if (propertyName === "tasks") {
+      const serviceUrl = getServiceUrl();
+      const links = arr.map(taskName => {
+        const a = document.createElement("a");
+        a.href = wrapUrl(`${serviceUrl}/${taskName}`);
+        a.textContent = taskName;
+        const li = document.createElement("li");
+        li.appendChild(a);
+        return li;
+      });
+      const taskList = document.createElement("ul");
+      links.forEach(link => taskList.appendChild(link));
+      return taskList;
+    }
+
+    if (propertyName === "color") {
+      return colorToDom(arr as Color);
+    }
   }
 
   const list = document.createElement("ul");
@@ -100,7 +130,7 @@ function arrayToElement(arr: any[], propertyName?: string) {
 
   arr
     .map(item => {
-      const element = toDefinitionList(item);
+      const element = toDomElement(item);
       if (element) {
         const li = document.createElement("li");
         li.appendChild(element);
@@ -118,13 +148,39 @@ function arrayToElement(arr: any[], propertyName?: string) {
  * @returns if the input is a standard object, returned value will be an HTMLDListElement.
  * For other types, such as string, number, boolean, or Date, a Text element will be returned
  */
-function toDefinitionList(o: any, propertyName?: string) {
-  console.debug("toDefinitionList", { propertyName });
-  if (propertyName === "datumTransformations") {
-    return createDatumXFormTable(o);
-  }
+function toDomElement(o: any, propertyName?: string) {
   if (o == null) {
     return document.createTextNode(o === null ? "null" : "undefined");
+  }
+
+  if (o instanceof Element) {
+    return o;
+  }
+
+  if (propertyName) {
+    // if propertyName ends with "url" and is not a hex number...
+    if (o && /Url$/i.test(propertyName) && !/^[0-9a-f]+$/i.test(o)) {
+      const a = document.createElement("a");
+      a.textContent = o;
+      a.href = o;
+      return a;
+    }
+    if (/^(?:latest)?[Ww]kid$/.test(propertyName)) {
+      const a = document.createElement("a");
+      a.innerText = o;
+      a.href = `https://epsg.io/${o}`;
+      a.target = "epsg";
+      return a;
+    }
+    if (propertyName === "datumTransformations") {
+      return createDatumXFormTable(o);
+    }
+  }
+
+  // Try symbol
+  const symbolImg = symbolToDom(o);
+  if (symbolImg) {
+    return symbolImg;
   }
 
   if (Array.isArray(o)) {
@@ -147,7 +203,7 @@ function toDefinitionList(o: any, propertyName?: string) {
       const dt = document.createElement("dt");
       dt.innerText = key;
       const dd = document.createElement("dd");
-      const content = toDefinitionList(value, key);
+      const content = toDomElement(value, key);
       if (content) {
         dd.appendChild(content);
       }
@@ -201,6 +257,30 @@ function createDatumXFormTable(dXforms: IDatumTransformation[]) {
   const dtxIds = new Set(
     Array.from(body.rows, r => parseInt(r.cells[0].innerText, 10))
   );
+  dtxIds.forEach(id => {
+    // Get all rows with an id cell matching the current id.
+    const matchCells = Array.from(body.rows)
+      .map(row => row.cells[0])
+      .filter(idCell => {
+        if (!idCell.innerText) {
+          return false;
+        }
+        const cellId = parseInt(idCell.innerText, 10);
+        return id === cellId;
+      });
+    const rowSpan = matchCells.length;
+    // Don't need to proceed any further if there is only one row for the id.
+    if (rowSpan > 1) {
+      matchCells[0].rowSpan = rowSpan;
+      const cellsToRemove = matchCells.splice(1);
+      cellsToRemove.forEach(cell => {
+        const parent = cell.parentElement;
+        if (parent) {
+          parent.removeChild(cell);
+        }
+      });
+    }
+  });
 
   return table;
 }
@@ -219,7 +299,7 @@ async function getServerInfo(url: string): Promise<IServerInfo> {
       /^(supported\w+Format\w*)|(Keywords)|(capabilities)$/i.test(key) &&
       typeof value === "string"
     ) {
-      return value.split(/[,\s]+/g);
+      return value ? value.split(/[,\s]+/g) : "";
     }
     if (key === "folders") {
       const folderNames = value as string[];
@@ -263,7 +343,7 @@ function createDom(serverInfo: IServerInfo) {
       dt.innerText = propName;
 
       const dd = document.createElement("dd");
-      const element = toDefinitionList(value, propName);
+      const element = toDomElement(value, propName);
       dl.appendChild(dt);
       if (element) {
         dd.appendChild(element);
@@ -276,11 +356,16 @@ function createDom(serverInfo: IServerInfo) {
   return frag;
 }
 
+/**
+ * Creates links to parent resources and appends this list to document body.
+ */
 function createBreadcrumbs() {
   const urlParts = getServiceUrlParts();
   if (urlParts) {
-    const breadCrumbs = document.createElement("ol");
-    breadCrumbs.classList.add("breadcrumbs");
+    const breadcrumbs = document.createElement("nav");
+    const list = document.createElement("ol");
+    breadcrumbs.appendChild(list);
+    breadcrumbs.classList.add("breadcrumbs");
     for (const partName in urlParts) {
       if (urlParts.hasOwnProperty(partName)) {
         const url = (urlParts as any)[partName];
@@ -296,14 +381,60 @@ function createBreadcrumbs() {
         a.href = pageUrl.toString();
         a.innerText = partName;
         li.appendChild(a);
-        breadCrumbs.appendChild(li);
+        list.appendChild(li);
       }
     }
-    document.body.appendChild(breadCrumbs);
+    const header = document.body.querySelector("header");
+    header!.appendChild(breadcrumbs);
   }
 }
 
 createBreadcrumbs();
+
+function createLinksList(url: string) {
+  const { service, tool: toolName, layer } = getServiceUrlParts(url)!;
+
+  // Exit if deeper than service level.
+  if (!service || (toolName || layer)) {
+    return;
+  }
+
+  // Exit if GP service.
+  if (/GPServer/.test(service)) {
+    return;
+  }
+
+  function createListItem(a: HTMLAnchorElement) {
+    const li = document.createElement("li");
+    li.appendChild(a);
+    list.appendChild(li);
+  }
+
+  function createAnchor(s: string, wrap?: boolean) {
+    const a = document.createElement("a");
+    a.textContent = s;
+    let href = `${service}/${s}`;
+    if (wrap) {
+      href = wrapUrl(href);
+    } else {
+      a.target = "_blank";
+    }
+    a.href = href;
+    return a;
+  }
+
+  let links = ["legend", "layers", "info/iteminfo"].map(s =>
+    createAnchor(s, true)
+  );
+  const list = document.createElement("ul");
+  links.forEach(createListItem);
+  // These endpoints don't support JSON, so will link directly
+  // instead of using wrapped app URL.
+  links = ["metadata", "thumbnail"].map(s => createAnchor(`info/${s}`, false));
+  links.forEach(createListItem);
+
+  return list;
+}
 
 (async () => {
   const urlParams = new URLSearchParams(location.search);
@@ -322,20 +453,22 @@ createBreadcrumbs();
     input.value = serverUrl;
   }
 
-  /**
-   * Tests to see if the URL is a service or layer URL.
-   */
-  const serviceUrlRe = /\/\w+Server(\/\d+)?\/?$/i;
+  const serviceRe = /((Map)|(Feature))Server\/?$/i;
 
-  if (serviceUrlRe.test(serverUrl)) {
-    const serverInfo = await getServerInfo(serverUrl);
-    const dl = toDefinitionList(serverInfo);
-    if (dl) {
-      document.body.appendChild(dl);
-    }
-  } else {
-    const serverInfo = await getServerInfo(serverUrl);
-    const frag = createDom(serverInfo);
-    document.body.appendChild(frag);
+  const mainSection = document.querySelector("#main");
+
+  if (!mainSection) {
+    console.warn("couldn't find main section");
+  }
+
+  const linksList = createLinksList(serverUrl);
+  if (linksList) {
+    mainSection!.appendChild(linksList);
+  }
+
+  const serverInfo = await getServerInfo(serverUrl);
+  const contentElement = toDomElement(serverInfo);
+  if (contentElement) {
+    mainSection!.appendChild(contentElement);
   }
 })();

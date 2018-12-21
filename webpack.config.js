@@ -4,6 +4,7 @@ const path = require('path');
 const config = {
   mode: "production",
   entry: './src/index.ts',
+  devtool: "source-map",
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'index.js'
