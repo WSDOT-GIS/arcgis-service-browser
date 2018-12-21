@@ -159,7 +159,7 @@ async function getServerInfo(url: string): Promise<IServerInfo> {
 
   const reviver = (key: any, value: any) => {
     if (
-      /^(supported\w+Format\w*)|(Keywords)$/i.test(key) &&
+      /^(supported\w+Format\w*)|(Keywords)|(capabilities)$/i.test(key) &&
       typeof value === "string"
     ) {
       return value.split(/[,\s]+/g);
@@ -219,28 +219,34 @@ function createDom(serverInfo: IServerInfo) {
   return frag;
 }
 
-const urlParts = getServiceUrlParts();
-if (urlParts) {
-  const breadCrumbs = document.createElement("ol");
-  breadCrumbs.classList.add("breadcrumbs");
-  for (const partName in urlParts) {
-    if (urlParts.hasOwnProperty(partName)) {
-      const url = (urlParts as any)[partName];
-      if (!url) {
-        continue;
+function createBreadcrumbs() {
+  const urlParts = getServiceUrlParts();
+  if (urlParts) {
+    const breadCrumbs = document.createElement("ol");
+    breadCrumbs.classList.add("breadcrumbs");
+    for (const partName in urlParts) {
+      if (urlParts.hasOwnProperty(partName)) {
+        const url = (urlParts as any)[partName];
+        if (!url) {
+          continue;
+        }
+        const li = document.createElement("li");
+        li.classList.add("breadcrumbs__item");
+        const a = document.createElement("a");
+        a.classList.add("breadcrumbs__item__anchor");
+        const pageUrl = new URL(location.href);
+        pageUrl.searchParams.set("url", url);
+        a.href = pageUrl.toString();
+        a.innerText = partName;
+        li.appendChild(a);
+        breadCrumbs.appendChild(li);
       }
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      const pageUrl = new URL(location.href);
-      pageUrl.searchParams.set("url", url);
-      a.href = pageUrl.toString();
-      a.innerText = partName;
-      li.appendChild(a);
-      breadCrumbs.appendChild(li);
     }
+    document.body.appendChild(breadCrumbs);
   }
-  document.body.appendChild(breadCrumbs);
 }
+
+createBreadcrumbs();
 
 (async () => {
   const urlParams = new URLSearchParams(location.search);
