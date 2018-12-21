@@ -1,0 +1,79 @@
+html {
+    font-family: 'Noto Sans', sans-serif;
+}
+
+form {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+
+textarea {
+    width: 100%;
+}
+
+dt {
+    font-weight: bold;
+}
+
+dd:empty::before, td:empty::before {
+    content: '(empty)';
+    color: gray;
+}
+
+table {
+    border: solid 1px black;
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 0.5rem 1rem;
+}
+
+td {
+    border: dashed 1px black;
+}
+
+.property--Keywords, .property--supportedQueryFormats, .property--supportedImageFormatTypes {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.property--Keywords li, .property--supportedQueryFormats li, .property--supportedImageFormatTypes li {
+    display: inline-block;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    color: white;
+    background: green;
+    border-radius: 5px;
+}
+
+.property--codedValues {
+    font-size: 8pt;
+}
+
+.property--codedValues td, .property--codedValues th {
+    padding: 0.2rem;
+    margin: 0;
+}
+
+dd {
+    margin-inline-start: 2rem;
+}
+
+.breadcrumbs {
+    list-style: none;
+    padding: 0;
+    background-color: lightgreen;
+}
+
+.breadcrumbs li {
+    display: inline-block;
+    list-style: none;
+    margin: 0.2em;
+}
+
+.breadcrumbs li:not(:first-child):before {
+    content: '>';
+}
