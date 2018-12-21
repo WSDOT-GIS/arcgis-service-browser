@@ -1,3 +1,10 @@
+import {
+  IDatumTransformation,
+  IGeoTransform,
+  ILinkInfo,
+  IServerInfo,
+  IService
+} from "./interfaces";
 import { getServerRoot, getServiceUrl, getServiceUrlParts } from "./urlUtils";
 
 function arrayToTable(objects: any[], propertyName?: string) {
@@ -58,7 +65,7 @@ function arrayToTable(objects: any[], propertyName?: string) {
 function arrayToElement(arr: any[], propertyName?: string) {
   if (
     propertyName &&
-    /^(fields)|(layers)|(tables)|(codedValues)$/.test(propertyName)
+    /^(fields)|(layers)|(tables)|(codedValues)|(lods)$/.test(propertyName)
   ) {
     return arrayToTable(arr, propertyName);
   }
@@ -112,6 +119,10 @@ function arrayToElement(arr: any[], propertyName?: string) {
  * For other types, such as string, number, boolean, or Date, a Text element will be returned
  */
 function toDefinitionList(o: any, propertyName?: string) {
+  console.debug("toDefinitionList", { propertyName });
+  if (propertyName === "datumTransformations") {
+    return createDatumXFormTable(o);
+  }
   if (o == null) {
     return document.createTextNode(o === null ? "null" : "undefined");
   }
@@ -146,6 +157,52 @@ function toDefinitionList(o: any, propertyName?: string) {
   }
 
   return dl;
+}
+
+function createDatumXFormTable(dXforms: IDatumTransformation[]) {
+  const table = document.createElement("table");
+  table.classList.add("property--datumTransformations");
+  const headRow = table.createTHead().insertRow();
+  const body = table.createTBody();
+
+  const propNames = ["name", "transformForward", "wkid", "latestWkid"];
+
+  function createLink(name: string, wkid: number, latestWkid?: number) {
+    const a = document.createElement("a");
+    a.innerText = name;
+    a.target = "epsg";
+    const url = `https://epsg.io/${latestWkid || wkid}`;
+    a.href = url;
+    return a;
+  }
+
+  ["id"].concat(propNames).forEach(s => {
+    const th = document.createElement("th");
+    th.innerText = s;
+    headRow.appendChild(th);
+  });
+
+  dXforms.forEach((dt, i) => {
+    dt.geoTransforms.forEach(gt => {
+      const values = [i, gt.name, gt.transformForward, gt.wkid, gt.latestWkid];
+      const row = body.insertRow();
+      values.forEach((v, j) => {
+        const cell = row.insertCell();
+        if (j === 1) {
+          cell.appendChild(createLink(gt.name, gt.wkid, gt.latestWkid));
+        } else {
+          cell.innerText = `${v}`;
+        }
+      });
+    });
+  });
+
+  // Loop through the rows and merge the ID cells that are the same.
+  const dtxIds = new Set(
+    Array.from(body.rows, r => parseInt(r.cells[0].innerText, 10))
+  );
+
+  return table;
 }
 
 /**
