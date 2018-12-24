@@ -1,17 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>ArcGIS Server browser</title>
-    <link rel="stylesheet" href="index.css">
-</head>
-<body>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <header>
+      <h1>ArcGIS Server Browser</h1>
+    </header>
+    <hr />
     <form>
-        <input type="url" name="url" placeholder="https://www.example.com/arcgis/rest/services" />
-        <button type="submit">Submit</button>
-        <script src="dist/index.js"></script>
+      <input
+        type="url"
+        name="url"
+        placeholder="https://www.example.com/arcgis/rest/services"
+      />
+      <button type="submit">Submit</button>
     </form>
-</body>
+    <nav id="links"></nav>
+    <section id="main"></section>
+    <script src="dist/index.js"></script>
+  </body>
 </html>
