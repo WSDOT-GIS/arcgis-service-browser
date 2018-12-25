@@ -28,6 +28,11 @@ td:empty::before {
   color: gray;
 }
 
+ul:empty:before, ol:empty:before {
+  content: "(empty list)";
+  color: gray;
+}
+
 table {
   border: solid 1px black;
   border-collapse: collapse;

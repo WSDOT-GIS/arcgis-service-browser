@@ -1,17 +1,16 @@
 import { Color } from "@esri/arcgis-rest-common-types";
+import { getServerInfo } from "./arcGisServerRequests";
 import { colorToDom } from "./colorUtils";
-import {
-  IDatumTransformation,
-  ILinkInfo,
-  IServerInfo,
-  IService
-} from "./interfaces";
+import { createDatumXFormTable } from "./datumUtils";
+import { ILinkInfo, IServerInfo, IService } from "./interfaces";
+import { createLayerList } from "./Layer";
 import { createLegendList, getLegend } from "./legend";
 import { symbolToDom } from "./symbols";
 import {
   getServerRoot,
   getServiceUrl,
   getServiceUrlParts,
+  getUrlSearchParam,
   wrapUrl
 } from "./urlUtils";
 
@@ -76,7 +75,12 @@ function arrayToTable(objects: any[], propertyName?: string) {
 }
 
 function arrayToElement(arr: any[], propertyName?: string) {
+  const currentUrl = getUrlSearchParam();
+  const isLayersUrl = /\/layers\/?$/.test(currentUrl!);
   if (propertyName) {
+    if (propertyName === "layers" && !isLayersUrl) {
+      return createLayerList(arr);
+    }
     if (
       /^(fields)|(layers)|(tables)|(codedValues)|(lods)|(indexes)|(relationships)|(((symbol)|(sub))Layers)|((sub)?types)$/.test(
         propertyName
@@ -215,146 +219,35 @@ function toDomElement(o: any, propertyName?: string) {
   return dl;
 }
 
-function createDatumXFormTable(dXforms: IDatumTransformation[]) {
-  const table = document.createElement("table");
-  table.classList.add("property--datumTransformations");
-  const headRow = table.createTHead().insertRow();
-  const body = table.createTBody();
+// /**
+//  * Creates the main DOM element that will be added to the page body.
+//  * @param serverInfo parsed JSON information returned from a server, folder, service, or layer URL.
+//  * @returns A Document fragment to be appended to document.body.
+//  */
+// function createDom(serverInfo: IServerInfo) {
+//   const frag = document.createDocumentFragment();
 
-  const propNames = ["name", "transformForward", "wkid", "latestWkid"];
+//   const dl = document.createElement("dl");
 
-  function createLink(name: string, wkid: number, latestWkid?: number) {
-    const a = document.createElement("a");
-    a.innerText = name;
-    a.target = "epsg";
-    const url = `https://epsg.io/${latestWkid || wkid}`;
-    a.href = url;
-    return a;
-  }
+//   for (const propName in serverInfo) {
+//     if (serverInfo.hasOwnProperty(propName)) {
+//       const value = serverInfo[propName];
+//       const dt = document.createElement("dt");
+//       dt.innerText = propName;
 
-  ["id"].concat(propNames).forEach(s => {
-    const th = document.createElement("th");
-    th.innerText = s;
-    headRow.appendChild(th);
-  });
+//       const dd = document.createElement("dd");
+//       const element = toDomElement(value, propName);
+//       dl.appendChild(dt);
+//       if (element) {
+//         dd.appendChild(element);
+//       }
+//       dl.appendChild(dd);
+//     }
+//   }
+//   frag.append(dl);
 
-  dXforms.forEach((dt, i) => {
-    dt.geoTransforms.forEach(gt => {
-      const values = [i, gt.name, gt.transformForward, gt.wkid, gt.latestWkid];
-      const row = body.insertRow();
-      values.forEach((v, j) => {
-        const cell = row.insertCell();
-        if (j === 1) {
-          cell.appendChild(createLink(gt.name, gt.wkid, gt.latestWkid));
-        } else {
-          cell.innerText = `${v}`;
-        }
-      });
-    });
-  });
-
-  // Loop through the rows and merge the ID cells that are the same.
-  const dtxIds = new Set(
-    Array.from(body.rows, r => parseInt(r.cells[0].innerText, 10))
-  );
-  dtxIds.forEach(id => {
-    // Get all rows with an id cell matching the current id.
-    const matchCells = Array.from(body.rows)
-      .map(row => row.cells[0])
-      .filter(idCell => {
-        if (!idCell.innerText) {
-          return false;
-        }
-        const cellId = parseInt(idCell.innerText, 10);
-        return id === cellId;
-      });
-    const rowSpan = matchCells.length;
-    // Don't need to proceed any further if there is only one row for the id.
-    if (rowSpan > 1) {
-      matchCells[0].rowSpan = rowSpan;
-      const cellsToRemove = matchCells.splice(1);
-      cellsToRemove.forEach(cell => {
-        const parent = cell.parentElement;
-        if (parent) {
-          parent.removeChild(cell);
-        }
-      });
-    }
-  });
-
-  return table;
-}
-
-/**
- * Provides information about a map server URL
- * @param url ArcGIS server, folder, service, or layer URL.
- */
-async function getServerInfo(url: string): Promise<IServerInfo> {
-  const serverResponse = await fetch(url + "?f=json");
-  const serverInfoJson = await serverResponse.text();
-  const root = getServerRoot(url);
-
-  const reviver = (key: any, value: any) => {
-    if (
-      /^(supported\w+Format\w*)|(Keywords)|(capabilities)$/i.test(key) &&
-      typeof value === "string"
-    ) {
-      return value ? value.split(/[,\s]+/g) : "";
-    }
-    if (key === "folders") {
-      const folderNames = value as string[];
-      return folderNames.map(folderName => ({
-        name: folderName,
-        url: `${root}/${folderName}`
-      }));
-    }
-    if (key === "services") {
-      const services = value as IService[];
-      return services.map(svc => ({
-        name: svc.name,
-        url: `${root}/${svc.name}/${svc.type}`
-      }));
-    }
-    if (key === "timeExtent") {
-      const timeInstants = value as number[];
-      return timeInstants.map(ti => new Date(ti).toISOString());
-    }
-    return value;
-  };
-
-  const serverInfo = JSON.parse(serverInfoJson, reviver);
-  return serverInfo;
-}
-
-/**
- * Creates the main DOM element that will be added to the page body.
- * @param serverInfo parsed JSON information returned from a server, folder, service, or layer URL.
- * @returns A Document fragment to be appended to document.body.
- */
-function createDom(serverInfo: IServerInfo) {
-  const frag = document.createDocumentFragment();
-
-  const dl = document.createElement("dl");
-
-  for (const propName in serverInfo) {
-    if (serverInfo.hasOwnProperty(propName)) {
-      const value = serverInfo[propName];
-      const dt = document.createElement("dt");
-      dt.innerText = propName;
-
-      const dd = document.createElement("dd");
-      const element = toDomElement(value, propName);
-      dl.appendChild(dt);
-      if (element) {
-        dd.appendChild(element);
-      }
-      dl.appendChild(dd);
-    }
-  }
-  frag.append(dl);
-
-  return frag;
-}
+//   return frag;
+// }
 
 /**
  * Creates links to parent resources and appends this list to document body.
