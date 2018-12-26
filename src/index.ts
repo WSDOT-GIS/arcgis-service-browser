@@ -1,4 +1,5 @@
 import { Color } from "@esri/arcgis-rest-common-types";
+import { load } from "webfontloader";
 import { getServerInfo } from "./arcGisServerRequests";
 import { colorToDom } from "./colorUtils";
 import { createDatumXFormTable } from "./datumUtils";
@@ -298,6 +299,12 @@ function createLinksList(url: string) {
 
   return list;
 }
+
+load({
+  google: {
+    families: ["Noto Sans"]
+  }
+});
 
 (async () => {
   const urlParams = new URLSearchParams(location.search);

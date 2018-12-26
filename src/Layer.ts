@@ -113,8 +113,11 @@ function createLayerObjects(layerInfos: IMapServiceResponseLayer[]) {
 type HTMLList = HTMLOListElement | HTMLUListElement;
 
 function createListItem(layer: MapServiceResponseLayer, parentList?: HTMLList) {
-  console.group(`createListItem: ${layer.id}. ${layer.name}`);
+  console.group("createListItem");
   console.debug("args", { layer, parentList });
+  if (!layer) {
+    throw TypeError("layer parameter cannot be null or undefined");
+  }
   const svcUrl = getServiceUrl()!;
   const li = document.createElement("li");
   const a = document.createElement("a");
@@ -128,6 +131,10 @@ function createListItem(layer: MapServiceResponseLayer, parentList?: HTMLList) {
   if (layer.subLayers) {
     const subLayerList = document.createElement("ul");
     for (const sl of layer.subLayers) {
+      if (!sl) {
+        console.warn("current sublayer is null or undefined", sl);
+        continue;
+      }
       createListItem(sl, subLayerList);
     }
     li.appendChild(subLayerList);
