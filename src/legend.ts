@@ -72,24 +72,3 @@ export function createLegendDom(legendResponse: ILegendResponse) {
 
   return frag;
 }
-
-export async function getLegend(
-  elementToReplace: HTMLElement,
-  legendUrl?: string
-) {
-  const progress = document.createElement("progress");
-  progress.textContent = "loading legend...";
-  elementToReplace!.replaceWith(progress);
-  try {
-    const svcUrl = getServiceUrl(legendUrl);
-    legendUrl = `${svcUrl}/legend?f=json`;
-    const response = await fetch(legendUrl);
-    const legendSpec = (await response.json()) as ILegendResponse;
-    const frag = createLegendDom(legendSpec);
-    progress.replaceWith(frag);
-  } catch {
-    if (progress.parentElement) {
-      progress.remove();
-    }
-  }
-}

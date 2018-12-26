@@ -28,7 +28,8 @@ td:empty::before {
   color: gray;
 }
 
-ul:empty:before, ol:empty:before {
+ul:empty:before,
+ol:empty:before {
   content: "(empty list)";
   color: gray;
 }
@@ -86,13 +87,22 @@ dd {
   margin-inline-start: 2rem;
 }
 
+.layer-resource-link-list,
 .breadcrumbs ol {
   list-style: none;
   padding: 0;
   margin: 0 0 1em 0;
+}
+
+.layer-resource-link-list {
+  margin-top: 0.5em;
+}
+
+.breadcrumbs ol {
   background-color: lightgreen;
 }
 
+.layer-resource-link-list li,
 .breadcrumbs li {
   display: inline-block;
   list-style: none;
@@ -101,4 +111,14 @@ dd {
 
 .breadcrumbs li:not(:first-child):before {
   content: ">";
+}
+
+.layer-resource-link-list li:not(:last-child):after {
+  content: "|";
+  margin-left: 0.2em;
+}
+
+.layer-resource-link-list:before {
+  content: "Resources:";
+  font-weight: bold;
 }

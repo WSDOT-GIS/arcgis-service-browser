@@ -2,12 +2,11 @@ import { Color } from "@esri/arcgis-rest-common-types";
 import { getServerInfo } from "./arcGisServerRequests";
 import { colorToDom } from "./colorUtils";
 import { createDatumXFormTable } from "./datumUtils";
-import { ILinkInfo, IServerInfo, IService } from "./interfaces";
+import { ILinkInfo } from "./interfaces";
 import { createLayerList } from "./Layer";
-import { createLegendList, getLegend } from "./legend";
+import { createLegendDom, createLegendList, ILegendResponse } from "./legend";
 import { symbolToDom } from "./symbols";
 import {
-  getServerRoot,
   getServiceUrl,
   getServiceUrlParts,
   getUrlSearchParam,
@@ -219,36 +218,6 @@ function toDomElement(o: any, propertyName?: string) {
   return dl;
 }
 
-// /**
-//  * Creates the main DOM element that will be added to the page body.
-//  * @param serverInfo parsed JSON information returned from a server, folder, service, or layer URL.
-//  * @returns A Document fragment to be appended to document.body.
-//  */
-// function createDom(serverInfo: IServerInfo) {
-//   const frag = document.createDocumentFragment();
-
-//   const dl = document.createElement("dl");
-
-//   for (const propName in serverInfo) {
-//     if (serverInfo.hasOwnProperty(propName)) {
-//       const value = serverInfo[propName];
-//       const dt = document.createElement("dt");
-//       dt.innerText = propName;
-
-//       const dd = document.createElement("dd");
-//       const element = toDomElement(value, propName);
-//       dl.appendChild(dt);
-//       if (element) {
-//         dd.appendChild(element);
-//       }
-//       dl.appendChild(dd);
-//     }
-//   }
-//   frag.append(dl);
-
-//   return frag;
-// }
-
 /**
  * Creates links to parent resources and appends this list to document body.
  */
@@ -320,6 +289,7 @@ function createLinksList(url: string) {
     createAnchor(s, true)
   );
   const list = document.createElement("ul");
+  list.classList.add("layer-resource-link-list");
   links.forEach(createListItem);
   // These endpoints don't support JSON, so will link directly
   // instead of using wrapped app URL.
@@ -346,7 +316,7 @@ function createLinksList(url: string) {
     input.value = serverUrl;
   }
 
-  const serviceRe = /((Map)|(Feature))Server\/?$/i;
+  const legendUrlRe = /\/legend\b\/?/;
 
   const mainSection = document.querySelector("#main");
 
@@ -354,12 +324,19 @@ function createLinksList(url: string) {
     console.warn("couldn't find main section");
   }
 
+  const serverInfo = await getServerInfo(serverUrl);
+
+  if (legendUrlRe.test(serverUrl)) {
+    const legendDom = createLegendDom(serverInfo as ILegendResponse);
+    mainSection!.appendChild(legendDom);
+    return;
+  }
+
   const linksList = createLinksList(serverUrl);
   if (linksList) {
     mainSection!.appendChild(linksList);
   }
 
-  const serverInfo = await getServerInfo(serverUrl);
   const contentElement = toDomElement(serverInfo);
   if (contentElement) {
     mainSection!.appendChild(contentElement);
