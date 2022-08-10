@@ -17,8 +17,7 @@ export interface ILinkInfo {
 /**
  * Information about a service
  */
-export interface IServerInfo {
-  [key: string]: any;
+export interface IServerInfo extends Record<string, unknown> {
   currentVersion?: number;
   folders?: ILinkInfo[];
   services?: ILinkInfo[];

@@ -10,7 +10,7 @@ export async function getServerInfo(url: string): Promise<IServerInfo> {
   const serverInfoJson = await serverResponse.text();
   const root = getServerRoot(url);
 
-  const reviver = (key: any, value: any) => {
+  function reviver(key: string, value: unknown) {
     // Split comma-separated lists into arrays.
     if (
       /^(supported\w+Format\w*)|(Keywords)|(capabilities)$/i.test(key) &&
@@ -20,16 +20,16 @@ export async function getServerInfo(url: string): Promise<IServerInfo> {
     }
     if (key === "folders") {
       const folderNames = value as string[];
-      return folderNames.map(folderName => ({
+      return folderNames.map((folderName) => ({
         name: folderName,
-        url: `${root}/${folderName}`
+        url: `${root}/${folderName}`,
       }));
     }
     if (key === "services") {
       const services = value as IService[];
-      return services.map(svc => ({
+      return services.map((svc) => ({
         name: svc.name,
-        url: `${root}/${svc.name}/${svc.type}`
+        url: `${root}/${svc.name}/${svc.type}`,
       }));
     }
     if (
@@ -38,10 +38,10 @@ export async function getServerInfo(url: string): Promise<IServerInfo> {
       (/Date/.test(key) && typeof value === "number" && value % 1 === 0)
     ) {
       const timeInstants = value as number[];
-      return timeInstants.map(ti => new Date(ti).toISOString());
+      return timeInstants.map((ti) => new Date(ti).toISOString());
     }
     return value;
-  };
+  }
 
   const serverInfo = JSON.parse(serverInfoJson, reviver);
   return serverInfo;

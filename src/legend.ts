@@ -45,7 +45,7 @@ export function createLegendList(legendSymbols: ILegendSymbol[]) {
     dt.textContent = s.label;
     const dd = document.createElement("dd");
     dd.appendChild(img);
-    [dt, dd].forEach(element => dl.appendChild(element));
+    [dt, dd].forEach((element) => dl.appendChild(element));
   }
   return dl;
 }
@@ -56,9 +56,7 @@ export function createLegendDom(legendResponse: ILegendResponse) {
 
   for (const layer of layers) {
     const layerHeading = document.createElement("h2");
-    layerHeading.textContent = `${layer.layerId}. ${layer.layerName} (${
-      layer.layerType
-    })`;
+    layerHeading.textContent = `${layer.layerId}. ${layer.layerName} (${layer.layerType})`;
     frag.appendChild(layerHeading);
     if (layer.minScale || layer.maxScale) {
       const scaleP = document.createElement("p");

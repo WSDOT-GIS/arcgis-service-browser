@@ -11,7 +11,7 @@ import {
   getServiceUrl,
   getServiceUrlParts,
   getUrlSearchParam,
-  wrapUrl
+  wrapUrl,
 } from "./urlUtils";
 
 function arrayToTable(objects: any[], propertyName?: string) {
@@ -35,18 +35,18 @@ function arrayToTable(objects: any[], propertyName?: string) {
   }
 
   // Add a table heading cell for each property.
-  fieldNames.forEach(fn => {
+  fieldNames.forEach((fn) => {
     const th = document.createElement("th");
     th.innerText = fn;
     hRow.appendChild(th);
   });
 
-  objects.forEach(o => {
+  objects.forEach((o) => {
     const bRow = body.insertRow();
-    fieldNames.forEach(fn => {
+    fieldNames.forEach((fn) => {
       const value = o[fn];
       const cell = bRow.insertCell();
-      if (fn === "name" && o.hasOwnProperty("id")) {
+      if (fn === "name" && Object.prototype.hasOwnProperty.call(o, "id")) {
         const a = document.createElement("a");
         const svcUrl = getServiceUrl();
         const hrefUrl = new URL(location.href);
@@ -109,7 +109,7 @@ function arrayToElement(arr: any[], propertyName?: string) {
 
     if (propertyName === "tasks") {
       const serviceUrl = getServiceUrl();
-      const links = arr.map(taskName => {
+      const links = arr.map((taskName) => {
         const a = document.createElement("a");
         a.href = wrapUrl(`${serviceUrl}/${taskName}`);
         a.textContent = taskName;
@@ -118,7 +118,7 @@ function arrayToElement(arr: any[], propertyName?: string) {
         return li;
       });
       const taskList = document.createElement("ul");
-      links.forEach(link => taskList.appendChild(link));
+      links.forEach((link) => taskList.appendChild(link));
       return taskList;
     }
 
@@ -133,7 +133,7 @@ function arrayToElement(arr: any[], propertyName?: string) {
   }
 
   arr
-    .map(item => {
+    .map((item) => {
       const element = toDomElement(item);
       if (element) {
         const li = document.createElement("li");
@@ -141,8 +141,8 @@ function arrayToElement(arr: any[], propertyName?: string) {
         return li;
       }
     })
-    .filter(li => li !== undefined)
-    .forEach(li => list.appendChild(li!));
+    .filter((li) => li !== undefined)
+    .forEach((li) => list.appendChild(li!));
   return list;
 }
 
@@ -212,7 +212,7 @@ function toDomElement(o: any, propertyName?: string) {
         dd.appendChild(content);
       }
 
-      [dt, dd].forEach(element => dl.appendChild(element));
+      [dt, dd].forEach((element) => dl.appendChild(element));
     }
   }
 
@@ -258,7 +258,7 @@ function createLinksList(url: string) {
   const { service, tool: toolName, layer } = getServiceUrlParts(url)!;
 
   // Exit if deeper than service level.
-  if (!service || (toolName || layer)) {
+  if (!service || toolName || layer) {
     return;
   }
 
@@ -286,7 +286,7 @@ function createLinksList(url: string) {
     return a;
   }
 
-  let links = ["legend", "layers", "info/iteminfo"].map(s =>
+  let links = ["legend", "layers", "info/iteminfo"].map((s) =>
     createAnchor(s, true)
   );
   const list = document.createElement("ul");
@@ -294,7 +294,9 @@ function createLinksList(url: string) {
   links.forEach(createListItem);
   // These endpoints don't support JSON, so will link directly
   // instead of using wrapped app URL.
-  links = ["metadata", "thumbnail"].map(s => createAnchor(`info/${s}`, false));
+  links = ["metadata", "thumbnail"].map((s) =>
+    createAnchor(`info/${s}`, false)
+  );
   links.forEach(createListItem);
 
   return list;
@@ -302,8 +304,8 @@ function createLinksList(url: string) {
 
 load({
   google: {
-    families: ["Noto Sans"]
-  }
+    families: ["Noto Sans"],
+  },
 });
 
 (async () => {

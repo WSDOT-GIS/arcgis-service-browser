@@ -1,21 +1,5 @@
 import { UnexpectedUrlFormatError } from "./UnexpectedUrlFormatError";
 
-// /**
-//  * This error is thrown by functions that expect a URL to be in a certain format
-//  * and are given a URL (or other text string) that does not match the expected format.
-//  * @member {string} message `Unexpected URL format. ${url} does not match ${expectedFormat}`
-//  */
-// export class UnexpectedUrlFormatError extends Error {
-//   /**
-//    * Creates a new instance of the class.
-//    * @param url The URL that caused the exception.
-//    * @param expectedFormat The regular expression showing the format that was expected.
-//    */
-//   constructor(public url: string, public expectedFormat: RegExp) {
-//     super(`Unexpected URL format. ${url} does not match ${expectedFormat}`);
-//   }
-// }
-
 /**
  * Gets the value of the "url" search parameter from location.search.
  * @returns Returns the "url" value if present, null otherwise.
@@ -122,8 +106,10 @@ export function getServiceUrlParts(
     )?
   )?/
   */
-  const svcUrlRe = /(^.+\/arcgis\/rest\/services)(?:(?:\/)(?:(\w+)\/)?(\w+)\/(\w+Server)(?:\/(\d+))?)?/;
-  const gpSvcUrlRe = /(^.+\/arcgis\/rest\/services)(?:(?:\/)(?:(\w+)\/)?(\w+)\/(\w+Server)(?:\/([^\/]+))?)?/;
+  const svcUrlRe =
+    /(^.+\/arcgis\/rest\/services)(?:(?:\/)(?:(\w+)\/)?(\w+)\/(\w+Server)(?:\/(\d+))?)?/;
+  const gpSvcUrlRe =
+    /(^.+\/arcgis\/rest\/services)(?:(?:\/)(?:(\w+)\/)?(\w+)\/(\w+Server)(?:\/([^/]+))?)?/;
 
   const match = url.match(svcUrlRe);
   if (match) {
@@ -140,7 +126,7 @@ export function getServiceUrlParts(
       folder: folder ? `${rootUrl}/${folder}` : null,
       service,
       layer: service && layerId ? `${service}/${layerId}` : null,
-      tool: null
+      tool: null,
     };
   }
 
@@ -159,7 +145,7 @@ export function getServiceUrlParts(
       folder: folder ? `${rootUrl}/${folder}` : null,
       service,
       layer: null,
-      tool: service && toolName ? `${service}/${toolName}` : null
+      tool: service && toolName ? `${service}/${toolName}` : null,
     };
   }
 
@@ -173,6 +159,6 @@ export function getServiceUrlParts(
     folder: null,
     service: null,
     layer: null,
-    tool: null
+    tool: null,
   };
 }

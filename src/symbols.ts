@@ -7,7 +7,7 @@ import {
   ISymbol,
   SimpleFillSymbolStyle,
   SimpleLineSymbolStyle,
-  SimpleMarkerSymbolStyle
+  SimpleMarkerSymbolStyle,
 } from "@esri/arcgis-rest-common-types";
 import { isHexString, rgbaArrayToCssRgb } from "./colorUtils";
 import { getServiceUrlParts } from "./urlUtils";
@@ -44,9 +44,9 @@ export function pictureSymbolToImage(
     const img = document.createElement("img");
     img.src = url;
     img.alt = "legend symbol";
-    ["width", "height"].forEach(propName => {
-      const sValue = pms.hasOwnProperty(propName)
-        ? (pms as any)[propName]
+    ["width", "height"].forEach((propName) => {
+      const sValue = Object.prototype.hasOwnProperty.call(pms, propName)
+        ? (pms as unknown as Record<string, string>)[propName]
         : null;
       if (sValue) {
         img.setAttribute(propName, sValue);
@@ -100,7 +100,7 @@ function trimPrefix(
   if (!words) {
     return styleDesc;
   }
-  return words.map(w => w.toLowerCase()).join("-");
+  return words.map((w) => w.toLowerCase()).join("-");
 }
 
 function applyOutlineStyle(element: HTMLElement, symbol?: ISimpleLineSymbol) {

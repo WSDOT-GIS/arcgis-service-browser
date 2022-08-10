@@ -8,7 +8,7 @@ export function isHexString(s: string) {
 }
 
 export function rgbToHex(rgb: number[]) {
-  const hexValues = rgb.map(value => value.toString(16));
+  const hexValues = rgb.map((value) => value.toString(16));
   return `#${hexValues.join("")}`;
 }
 

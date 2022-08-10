@@ -1,28 +1,29 @@
 import { getServiceUrl, wrapUrl } from "./urlUtils";
 
-export interface IMapServiceResponseLayer {
+export interface IHasId {
   id: number;
+}
+
+export interface IMapServiceResponseLayerCommon extends IHasId {
   name: string;
+  defaultVisibility: boolean;
+  subLayerIds: number[] | null;
+  minScale: number;
+  maxScale: number;
+}
+
+export interface IMapServiceResponseLayer
+  extends IMapServiceResponseLayerCommon {
   parentLayerId: number;
-  defaultVisibility: boolean;
-  subLayerIds: number[] | null;
-  minScale: number;
-  maxScale: number;
 }
 
-export interface IMapServiceLayersResponseSubLayer {
-  id: number;
+export interface IMapServiceLayersResponseSubLayer extends IHasId {
   name: string;
 }
 
-export interface IMapServiceLayersResponseLayer {
-  id: number;
-  name: string;
+export interface IMapServiceLayersResponseLayer
+  extends IMapServiceResponseLayerCommon {
   parentLayer: IMapServiceLayersResponseSubLayer;
-  defaultVisibility: boolean;
-  subLayerIds: number[] | null;
-  minScale: number;
-  maxScale: number;
 }
 
 export class MapServiceResponseLayer {
@@ -47,9 +48,9 @@ export class MapServiceResponseLayer {
     this.id = layer.id;
     this.name = layer.name;
     // this.parentLayerId = (layer as IMapServiceResponseLayer).parentLayerId || (layer as IMapServiceLayersResponseLayer).parent
-    if (layer.hasOwnProperty("parentLayerId")) {
+    if (Object.prototype.hasOwnProperty.call(layer, "parentLayerId")) {
       this.parentLayerId = (layer as IMapServiceResponseLayer).parentLayerId;
-    } else if (layer.hasOwnProperty("parentLayer")) {
+    } else if (Object.prototype.hasOwnProperty.call(layer, "parentLayer")) {
       const l = layer as IMapServiceLayersResponseLayer;
       this.parentLayerId = l.parentLayer ? l.parentLayer.id : -1;
     }
@@ -58,7 +59,9 @@ export class MapServiceResponseLayer {
       if (typeof layer.subLayerIds[0] === "number") {
         this.subLayerIds = layer.subLayerIds as number[];
       } else {
-        this.subLayerIds = (layer.subLayerIds as any).map((l: any) => l.id);
+        this.subLayerIds = (layer.subLayerIds as unknown[] as IHasId[]).map(
+          (l) => l.id
+        );
       }
     }
     this.minScale = layer.minScale;
@@ -89,7 +92,10 @@ function createLayerObjects(layerInfos: IMapServiceResponseLayer[]) {
     layerMap.set(layer.id, layer);
     // If layer has a parent, set the layer's parentLayer object.
     // Otherwise add it to the topLevelLayers array.
-    if (lInfo.parentLayerId !== -1 || (lInfo as any).parentLayer != null) {
+    if (
+      lInfo.parentLayerId !== -1 ||
+      (lInfo as unknown as IMapServiceLayersResponseLayer).parentLayer != null
+    ) {
       layer.parentLayer = layerMap.get(layer.parentLayerId!);
     } else {
       layer.parentLayer = null;
@@ -100,11 +106,11 @@ function createLayerObjects(layerInfos: IMapServiceResponseLayer[]) {
   // Now that all of the layer objects have been created,
   // for the layers that have sublayer IDs, create the layer's
   // sublayers property array.
-  layers
-    .filter(l => !!l.subLayerIds)
-    .forEach(l => {
-      l.subLayers = l.subLayerIds!.map(id => layerMap.get(id)!);
-    });
+  for (const l of layers) {
+    if (l.subLayerIds) {
+      l.subLayers = l.subLayerIds.map((id) => layerMap.get(id)!);
+    }
+  }
   console.groupEnd();
 
   return { layerMap, topLevelLayers };
