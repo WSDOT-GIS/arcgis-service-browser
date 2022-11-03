@@ -336,18 +336,18 @@ load({
   const serverInfo = await getServerInfo(serverUrl);
 
   if (legendUrlRe.test(serverUrl)) {
-    const legendDom = createLegendDom(serverInfo as ILegendResponse);
-    mainSection!.appendChild(legendDom);
+    const legendDom = createLegendDom(serverInfo as unknown as ILegendResponse);
+    mainSection?.appendChild(legendDom);
     return;
   }
 
   const linksList = createLinksList(serverUrl);
   if (linksList) {
-    mainSection!.appendChild(linksList);
+    mainSection?.appendChild(linksList);
   }
 
   const contentElement = toDomElement(serverInfo);
   if (contentElement) {
-    mainSection!.appendChild(contentElement);
+    mainSection?.appendChild(contentElement);
   }
 })();

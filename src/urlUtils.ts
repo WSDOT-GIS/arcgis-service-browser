@@ -4,9 +4,14 @@ import { UnexpectedUrlFormatError } from "./UnexpectedUrlFormatError";
  * Gets the value of the "url" search parameter from location.search.
  * @returns Returns the "url" value if present, null otherwise.
  */
-export function getUrlSearchParam() {
+export function getUrlSearchParam(): string {
   const urlSearch = new URLSearchParams(location.search);
   const url = urlSearch.get("url");
+  if (url == null) {
+    throw new TypeError(
+      'The current browser does not have a "url" search parameter defined.'
+    );
+  }
   return url;
 }
 
@@ -14,7 +19,10 @@ export function getUrlSearchParam() {
  * Extracts the server root URL.
  * @param url Server, service, layer, or other server resource URL
  */
-export function getServerRoot(url: string = getUrlSearchParam()!) {
+export function getServerRoot(url: string | null = getUrlSearchParam()) {
+  if (url == null) {
+    throw new TypeError("Input URL should not be null");
+  }
   const re = /^.+\/arcgis\/rest(\/services)?/;
   const match = url.match(re);
   if (!match) {
@@ -32,9 +40,12 @@ export function getServerRoot(url: string = getUrlSearchParam()!) {
  * Extracts the (Map, Feature, GP, etc.) service URL.
  * @param url
  */
-export function getServiceUrl(url: string = getUrlSearchParam()!) {
+export function getServiceUrl(url: string | null = getUrlSearchParam()) {
+  if (url == null) {
+    throw new TypeError("Input URL should not be null");
+  }
   const re = /^.+\/arcgis\/rest\/services(?:\/\w+){1,2}\/(?:\w+Server)/i;
-  const match = url.match(re);
+  const match = url?.match(re);
   if (!match) {
     throw new UnexpectedUrlFormatError(url, re);
   }
