@@ -1,5 +1,3 @@
-import { getServiceUrl } from "./urlUtils";
-
 export interface ILegendLayer {
   layerId: number;
   layerName: string;
