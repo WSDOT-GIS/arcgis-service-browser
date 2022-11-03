@@ -1,4 +1,4 @@
-import { Color } from "@esri/arcgis-rest-common-types";
+import { Color } from "@esri/arcgis-rest-types";
 
 export function isHexString(s: string) {
   if (!s) {

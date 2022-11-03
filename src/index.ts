@@ -1,4 +1,4 @@
-import { Color } from "@esri/arcgis-rest-common-types";
+import { Color } from "@esri/arcgis-rest-types";
 import { load } from "webfontloader";
 import { getServerInfo } from "./arcGisServerRequests";
 import { colorToDom } from "./colorUtils";

@@ -99,7 +99,7 @@ export interface IParsedUrls {
  * @returns Returns server "root" URL, and if available: "folder", "service", and "layer" URLs.
  */
 export function getServiceUrlParts(
-  url: string = getUrlSearchParam()!
+  url: string = getUrlSearchParam()
 ): IParsedUrls | null {
   if (!url) {
     return null;
@@ -127,9 +127,8 @@ export function getServiceUrlParts(
     const [, rootUrl, folder, serviceName, serviceType, layerId] = match;
 
     const service = serviceName
-      ? `${rootUrl}/${
-          folder ? [folder, serviceName].join("/") : serviceName
-        }/${serviceType}`
+      ? `${rootUrl}/${folder ? [folder, serviceName].join("/") : serviceName
+      }/${serviceType}`
       : null;
 
     return {
@@ -146,9 +145,8 @@ export function getServiceUrlParts(
     const [, rootUrl, folder, serviceName, serviceType, toolName] = gpMatch;
 
     const service = serviceName
-      ? `${rootUrl}/${
-          folder ? [folder, serviceName].join("/") : serviceName
-        }/${serviceType}`
+      ? `${rootUrl}/${folder ? [folder, serviceName].join("/") : serviceName
+      }/${serviceType}`
       : null;
 
     return {
