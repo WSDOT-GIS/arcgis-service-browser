@@ -4,14 +4,9 @@ import { UnexpectedUrlFormatError } from "./UnexpectedUrlFormatError";
  * Gets the value of the "url" search parameter from location.search.
  * @returns Returns the "url" value if present, null otherwise.
  */
-export function getUrlSearchParam(): string {
+export function getUrlSearchParam(): string | null {
   const urlSearch = new URLSearchParams(location.search);
   const url = urlSearch.get("url");
-  if (url == null) {
-    throw new TypeError(
-      'The current browser does not have a "url" search parameter defined.'
-    );
-  }
   return url;
 }
 
@@ -93,13 +88,23 @@ export interface IParsedUrls {
   tool: string | null;
 }
 
+export function isLayerQueryUrl(url: string | URL): boolean {
+  const layerQueryUrl = /\b((Map)|(Feature))Server\/\d+\/query/gi;
+
+  if (!(url instanceof URL)) {
+    url = new URL(url);
+  }
+
+  return layerQueryUrl.test(url.pathname);
+}
+
 /**
  * Gets the parent resources' URLs for a given ArcGIS Server URL.
  * @param url ArcGIS Server URL.
  * @returns Returns server "root" URL, and if available: "folder", "service", and "layer" URLs.
  */
 export function getServiceUrlParts(
-  url: string = getUrlSearchParam()
+  url: string | null = getUrlSearchParam()
 ): IParsedUrls | null {
   if (!url) {
     return null;
@@ -118,9 +123,9 @@ export function getServiceUrlParts(
   )?/
   */
   const svcUrlRe =
-    /(^.+\/arcgis\/rest\/services)(?:(?:\/)(?:(\w+)\/)?(\w+)\/(\w+Server)(?:\/(\d+))?)?/;
+    /(^.+\/arcgis\/rest\/services)(?:(?:\/)(?:(\w+)\/)?(\w+)\/(\w+Server)(?:\/(\d+))?)?/i;
   const gpSvcUrlRe =
-    /(^.+\/arcgis\/rest\/services)(?:(?:\/)(?:(\w+)\/)?(\w+)\/(\w+Server)(?:\/([^/]+))?)?/;
+    /(^.+\/arcgis\/rest\/services)(?:(?:\/)(?:(\w+)\/)?(\w+)\/(\w+Server)(?:\/([^/]+))?)?/i;
 
   const match = url.match(svcUrlRe);
   if (match) {

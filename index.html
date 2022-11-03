@@ -29,6 +29,269 @@
   </form>
   <nav id="links"></nav>
   <section id="main"></section>
+
+
+  <template id="queryFormTemplate">
+    <form>
+      <table class="formTable">
+        <tbody>
+          <tr valign="top">
+            <td><label for="where">Where:</label></td>
+            <td><input type="text" id="where" name="where" value="" size="75"></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="text">Text:</label></td>
+            <td><input type="text" id="text" name="text" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="objectIds">Object IDs:</label></td>
+            <td><input type="text" id="objectIds" name="objectIds" value="" size="75"></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="time">Time:</label></td>
+            <td><input type="text" id="time" name="time" value="" size="75"></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="timeRelation">Time Relation:</label></td>
+            <td>
+              <select id="timeRelation" name="timeRelation">
+                <option value="esriTimeRelationOverlaps">Include start and end</option>
+                <option value="esriTimeRelationOverlapsStartWithinEnd">Include start and exclude end</option>
+                <option value="esriTimeRelationAfterStartOverlapsEnd">Exclude start and include end</option>
+                <option value="esriTimeRelationWithin">Exclude start and end</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label for="geometry">Input Geometry:</label></td>
+            <td>
+              <textarea id="geometry" name="geometry" rows="5" cols="55"></textarea>
+            </td>
+          </tr>
+          <tr>
+            <td><label for="geometryType">Geometry Type:</label></td>
+            <td>
+              <select id="geometryType" name="geometryType">
+                <option value="esriGeometryEnvelope">Envelope</option>
+                <option value="esriGeometryPoint">Point</option>
+                <option value="esriGeometryPolyline">Polyline</option>
+                <option value="esriGeometryPolygon">Polygon</option>
+                <option value="esriGeometryMultipoint">Multipoint</option>
+              </select>
+            </td>
+          </tr>
+          <tr valign="top">
+            <td><label for="inSR">Input Spatial Reference:</label></td>
+            <td><input type="text" id="inSR" name="inSR" value="" size="75"></td>
+          </tr>
+          <tr>
+            <td><label for="spatialRel">Spatial Relationship:</label></td>
+            <td>
+              <select id="spatialRel" name="spatialRel">
+                <option value="esriSpatialRelIntersects">Intersects</option>
+                <option value="esriSpatialRelContains">Contains</option>
+                <option value="esriSpatialRelCrosses">Crosses</option>
+                <option value="esriSpatialRelEnvelopeIntersects">Envelope Intersects</option>
+                <option value="esriSpatialRelIndexIntersects">Index Intersects</option>
+                <option value="esriSpatialRelOverlaps">Overlaps</option>
+                <option value="esriSpatialRelTouches">Touches</option>
+                <option value="esriSpatialRelWithin">Within</option>
+                <option value="esriSpatialRelRelation">Relation</option>
+              </select>
+            </td>
+          </tr>
+          <tr valign="top">
+            <td><label for="distance">Distance:</label></td>
+            <td><input type="text" id="distance" name="distance" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="units">Units:</label></td>
+            <td>
+              <select id="units" name="units">
+                <option value="esriSRUnit_Foot">Feet</option>
+                <option value="esriSRUnit_Meter">Meters</option>
+                <option value="esriSRUnit_Kilometer">Kilometers</option>
+                <option value="esriSRUnit_StatuteMile">Miles</option>
+                <option value="esriSRUnit_NauticalMile">Nautical Miles</option>
+                <option value="esriSRUnit_USNauticalMile">US Nautical Miles</option>
+              </select>
+            </td>
+          </tr>
+          <tr valign="top">
+            <td><label for="relationParam">Relation:</label></td>
+            <td><input type="text" id="relationParam" name="relationParam" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="outFields">Out Fields:</label></td>
+            <td><input type="text" id="outFields" name="outFields" value="" size="75"></td>
+          </tr>
+          <tr>
+            <td>Return Geometry:</td>
+            <td>
+              <label><input type="radio" name="returnGeometry" value="true" checked="true"> True &nbsp;</label>
+              <label><input type="radio" name="returnGeometry" value="false"> False</label>
+            </td>
+          </tr>
+          <tr>
+            <td>Return True Curves:</td>
+            <td>
+              <label><input type="radio" name="returnTrueCurves" value="true"> True &nbsp;</label>
+              <label><input type="radio" name="returnTrueCurves" value="false" checked="true"> False</label>
+            </td>
+          </tr>
+          <tr valign="top">
+            <td><label for="maxAllowableOffset">Max Allowable Offset:</label></td>
+            <td><input type="text" id="maxAllowableOffset" name="maxAllowableOffset" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="geometryPrecision">Geometry Precision:</label></td>
+            <td><input type="text" id="geometryPrecision" name="geometryPrecision" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="outSR">Output Spatial Reference:</label></td>
+            <td><input type="text" id="outSR" name="outSR" value="" size="75"></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="havingClause">Having Clause:</label></td>
+            <td><input type="text" id="havingClause" name="havingClause" value="" size="75"></td>
+          </tr>
+          <tr>
+            <td>Return IDs Only:</td>
+            <td>
+              <label><input type="radio" name="returnIdsOnly" value="true"> True &nbsp;</label>
+              <label><input type="radio" name="returnIdsOnly" value="false" checked="true"> False</label>
+            </td>
+          </tr>
+          <tr>
+            <td>Return Count Only:</td>
+            <td>
+              <label><input type="radio" name="returnCountOnly" value="true"> True &nbsp;</label>
+              <label><input type="radio" name="returnCountOnly" value="false" checked="true"> False</label>
+            </td>
+          </tr>
+          <tr>
+            <td><label for="orderByFields">Order By Fields:</label></td>
+            <td><input type="text" id="orderByFields" name="orderByFields" value="" size="50"></td>
+          </tr>
+          <tr>
+            <td><label for="groupByFieldsForStatistics">Group By Fields (For Statistics):</label></td>
+            <td><input type="text" id="groupByFieldsForStatistics" name="groupByFieldsForStatistics" value="" size="50">
+            </td>
+          </tr>
+          <tr>
+            <td><label for="outStatistics">Output Statistics:</label></td>
+            <td><textarea id="outStatistics" name="outStatistics" rows="5" cols="55"></textarea></td>
+          </tr>
+          <tr>
+            <td>ReturnZ:</td>
+            <td>
+              <label><input type="radio" name="returnZ" value="true"> True &nbsp;</label>
+              <label><input type="radio" name="returnZ" value="false" checked="true"> False</label>
+            </td>
+          </tr>
+          <tr>
+            <td>ReturnM:</td>
+            <td>
+              <label><input type="radio" name="returnM" value="true"> True &nbsp;</label>
+              <label><input type="radio" name="returnM" value="false" checked="true"> False</label>
+            </td>
+          </tr>
+          <tr valign="top">
+            <td><label for="gdbVersion">Geodatabase Version Name:</label></td>
+            <td><input type="text" id="gdbVersion" name="gdbVersion" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td>Historic Moment:</td>
+            <td><input type="text" name="historicMoment" value=""></td>
+          </tr>
+          <tr>
+            <td>Return Distinct Values:</td>
+            <td>
+              <label><input type="radio" name="returnDistinctValues" value="true"> True &nbsp;</label>
+              <label><input type="radio" name="returnDistinctValues" value="false" checked="true"> False</label>
+            </td>
+          </tr>
+          <tr valign="top">
+            <td><label for="resultOffset">Result Offset:</label></td>
+            <td><input type="text" id="resultOffset" name="resultOffset" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="resultRecordCount">Result Record Count:</label></td>
+            <td><input type="text" id="resultRecordCount" name="resultRecordCount" value=""></td>
+          </tr>
+          <tr>
+            <td>Return Extents Only:</td>
+            <td>
+              <label><input type="radio" name="returnExtentOnly" value="true"> True &nbsp;</label>
+              <label><input type="radio" name="returnExtentOnly" value="false" checked="true"> False</label>
+            </td>
+          </tr>
+          <tr>
+            <td><label for="sqlFormat">SQL Format:</label></td>
+            <td>
+              <select id="sqlFormat" name="sqlFormat">
+                <option value="none">None</option>
+                <option value="standard">Standard</option>
+                <option value="native">Native</option>
+              </select>
+            </td>
+          </tr>
+          <tr valign="top">
+            <td><label for="datumTransformation">Datum Transformation:</label></td>
+            <td><input type="text" id="datumTransformation" name="datumTransformation" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="parameterValues">Parameter Values:</label></td>
+            <td><input type="text" id="parameterValues" name="parameterValues" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="rangeValues">Range Values:</label></td>
+            <td><input type="text" id="rangeValues" name="rangeValues" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="quantizationParameters">Quantization Parameters:</label></td>
+            <td><input type="text" id="quantizationParameters" name="quantizationParameters" value=""></td>
+          </tr>
+          <tr valign="top">
+            <td><label for="featureEncoding">Feature Encoding:</label></td>
+            <td>
+              <select id="featureEncoding" name="featureEncoding">
+                <option value="esriDefault">EsriDefault</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label for="f">Format:</label></td>
+            <td>
+              <select id="f" name="f">
+                <option value="html">HTML</option>
+                <option value="pjson">JSON</option>
+                <option value="kmz">KMZ</option>
+                <option value="geojson">GeoJSON</option>
+                <option value="pbf">PBF</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="metionSelect">Query method</label>
+            </td>
+            <td>
+              <select id="metionSelect">
+                <option value="get">GET</option>
+                <option value="post">POST</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <button type="submit">Submit</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </template>
   <script src="dist/index.js"></script>
 </body>
 

@@ -11,10 +11,20 @@ import {
   getServiceUrl,
   getServiceUrlParts,
   getUrlSearchParam,
+  isLayerQueryUrl,
   wrapUrl,
 } from "./urlUtils";
 
-function arrayToTable(objects: any[], propertyName?: string) {
+/**
+ * Creates a table showing properties of an object.
+ * @param objects - An array of objects.
+ * @param propertyName - Property name for use with class assigned to table.
+ * @returns - An HTML table
+ */
+function arrayToTable(
+  objects: Record<string, string>[],
+  propertyName?: string
+) {
   const table = document.createElement("table");
   if (propertyName) {
     table.classList.add(`property--${propertyName}`);
@@ -28,7 +38,7 @@ function arrayToTable(objects: any[], propertyName?: string) {
   const fieldNames = new Set<string>();
   for (const obj of objects) {
     for (const propName in obj) {
-      if (obj.hasOwnProperty(propName)) {
+      if (Object.prototype.hasOwnProperty.call(obj, propName)) {
         fieldNames.add(propName);
       }
     }
@@ -202,7 +212,7 @@ function toDomElement(o: any, propertyName?: string) {
   const dl = document.createElement("dl");
 
   for (const key in o) {
-    if (o.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(o, key)) {
       const value = o[key];
       const dt = document.createElement("dt");
       dt.innerText = key;
@@ -230,7 +240,7 @@ function createBreadcrumbs() {
     breadcrumbs.appendChild(list);
     breadcrumbs.classList.add("breadcrumbs");
     for (const partName in urlParts) {
-      if (urlParts.hasOwnProperty(partName)) {
+      if (Object.prototype.hasOwnProperty.call(urlParts, partName)) {
         const url = (urlParts as any)[partName];
         if (!url) {
           continue;
@@ -248,7 +258,7 @@ function createBreadcrumbs() {
       }
     }
     const header = document.body.querySelector("header");
-    header!.appendChild(breadcrumbs);
+    header?.appendChild(breadcrumbs);
   }
 }
 
@@ -302,6 +312,39 @@ function createLinksList(url: string) {
   return list;
 }
 
+function setupQueryForm(serverUrl: string) {
+  console.debug(`${serverUrl} is a layer query URL`);
+  const templateSelector = "template#queryFormTemplate";
+  const template = document.body.querySelector<HTMLTemplateElement>(
+    templateSelector
+  );
+  if (!template) {
+    throw new TypeError(`Could not find "${templateSelector}"`);
+  }
+  // Clone the template content, which in this case is a <form>.
+  const fragment = template.content.cloneNode(true);
+
+  
+  const forms = Array.from(fragment.childNodes).filter(c => c instanceof HTMLFormElement);
+  
+  const form = forms.length ? (forms[0] as HTMLFormElement) : null;
+
+  if (!(form instanceof HTMLFormElement)) {
+    throw new TypeError("Could not find form");
+  }
+
+  document.body.append(fragment);
+
+  form.action = serverUrl;
+
+  // form.addEventListener("submit", (e) => {
+  //   // stop form from being submitted.
+  //   e.preventDefault();
+  // });
+
+}
+
+
 load({
   google: {
     families: ["Noto Sans"],
@@ -332,22 +375,32 @@ load({
   if (!mainSection) {
     console.warn("couldn't find main section");
   }
+  if (isLayerQueryUrl(serverUrl)) {
+    setupQueryForm(serverUrl);
 
-  const serverInfo = await getServerInfo(serverUrl);
+  } else {
+    console.debug(`${serverUrl} is not a layer query URL`);
 
-  if (legendUrlRe.test(serverUrl)) {
-    const legendDom = createLegendDom(serverInfo as unknown as ILegendResponse);
-    mainSection?.appendChild(legendDom);
-    return;
-  }
+    const serverInfo = await getServerInfo(serverUrl);
 
-  const linksList = createLinksList(serverUrl);
-  if (linksList) {
-    mainSection?.appendChild(linksList);
-  }
+    if (legendUrlRe.test(serverUrl)) {
+      const legendDom = createLegendDom(
+        serverInfo as unknown as ILegendResponse
+      );
+      mainSection?.appendChild(legendDom);
+      return;
+    }
 
-  const contentElement = toDomElement(serverInfo);
-  if (contentElement) {
-    mainSection?.appendChild(contentElement);
+    const linksList = createLinksList(serverUrl);
+    if (linksList) {
+      mainSection?.appendChild(linksList);
+    }
+
+    const contentElement = toDomElement(serverInfo);
+    if (contentElement) {
+      mainSection?.appendChild(contentElement);
+    }
   }
 })();
+
+
