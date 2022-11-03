@@ -3,25 +3,24 @@ import {
   IPictureMarkerSymbol,
   ISimpleFillSymbol,
   ISimpleLineSymbol,
-  ISimpleMarkerSymbol,
   ISymbol,
   SimpleFillSymbolStyle,
   SimpleLineSymbolStyle,
   SimpleMarkerSymbolStyle,
-} from "@esri/arcgis-rest-common-types";
+} from "@esri/arcgis-rest-types";
 import { isHexString, rgbaArrayToCssRgb } from "./colorUtils";
 import { getServiceUrlParts } from "./urlUtils";
 
 /**
- * A symbol "url" property consists of just a hexidecimal string. This function
+ * A symbol "url" property consists of just a hexadecimal string. This function
  * creates a valid URL from that hex string by combining it with the layer URL.
- * @param imageUrlHex The hexidecimal string from the "url" property of a symbol object.
+ * @param imageUrlHex The hexadecimal string from the "url" property of a symbol object.
  * @param layerUrl The URL of the service layer. If omitted, function will attempt to autodetect using "url" search parameter.
  */
 export function toSymbolUrl(imageUrlHex: string, layerUrl?: string) {
   // Ensure valid layer URL
   const parts = getServiceUrlParts(layerUrl);
-  layerUrl = parts!.layer!;
+  layerUrl = parts?.layer || undefined;
 
   const imageUrl = `${layerUrl}/images/${imageUrlHex}`;
   return imageUrl;
