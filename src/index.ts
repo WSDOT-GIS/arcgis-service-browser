@@ -163,6 +163,24 @@ function arrayToElement(arr: any[], propertyName?: string) {
  * @returns if the input is a standard object, returned value will be an HTMLDListElement.
  * For other types, such as string, number, boolean, or Date, a Text element will be returned
  */
+function toDomElement<T extends Element>(o: T, propertyName?: string): T;
+function toDomElement(
+  o: IDatumTransformation,
+  propertyName: "datumTransformations"
+): HTMLTableElement;
+function toDomElement(
+  o: unknown[],
+  propertyName?: string
+): ReturnType<typeof arrayToElement>;
+function toDomElement(
+  o: string | number | Date | boolean,
+  propertyName?: string
+): Text;
+function toDomElement<T extends Record<string, unknown>>(
+  o: T,
+  propertyName?: string
+): HTMLDListElement;
+function toDomElement(o?: null, propertyName?: string): Text;
 function toDomElement(o: unknown, propertyName?: string) {
   if (o == null) {
     return document.createTextNode(o === null ? "null" : "undefined");
@@ -212,27 +230,24 @@ function toDomElement(o: unknown, propertyName?: string) {
     return document.createTextNode(`${o}`);
   }
 
-  if (typeof o === "object") {
+  const dl = document.createElement("dl");
 
-    const dl = document.createElement("dl");
-
-    for (const key in o) {
-      if (Object.prototype.hasOwnProperty.call(o, key)) {
-        const value = (o as Record<string, unknown>)[key];
-        const dt = document.createElement("dt");
-        dt.innerText = key;
-        const dd = document.createElement("dd");
-        const content = toDomElement(value, key);
-        if (content) {
-          dd.appendChild(content);
-        }
-
-        [dt, dd].forEach((element) => dl.appendChild(element));
+  for (const key in o) {
+    if (Object.prototype.hasOwnProperty.call(o, key)) {
+      const value = (o as Record<string, unknown>)[key];
+      const dt = document.createElement("dt");
+      dt.innerText = key;
+      const dd = document.createElement("dd");
+      const content = toDomElement(value as never, key);
+      if (content) {
+        dd.appendChild(content);
       }
-    }
 
-    return dl;
+      [dt, dd].forEach((element) => dl.appendChild(element));
+    }
   }
+
+  return dl;
 }
 
 /**

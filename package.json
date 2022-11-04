@@ -15,6 +15,7 @@
   "author": "",
   "license": "Unlicense",
   "devDependencies": {
+    "@esri/arcgis-rest-request": "^4.1.1",
     "@esri/arcgis-rest-types": "^3.5.0",
     "@types/webfontloader": "^1.6.35",
     "@typescript-eslint/eslint-plugin": "^5.42.0",
