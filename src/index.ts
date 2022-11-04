@@ -262,7 +262,9 @@ function createBreadcrumbs() {
     breadcrumbs.classList.add("breadcrumbs");
     for (const partName in urlParts) {
       if (Object.prototype.hasOwnProperty.call(urlParts, partName)) {
-        const url = (urlParts as any)[partName];
+        const url = (urlParts as unknown as Record<string, string | null>)[
+          partName
+        ];
         if (!url) {
           continue;
         }
