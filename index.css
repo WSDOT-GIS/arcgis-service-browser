@@ -122,3 +122,23 @@ dd {
   content: "Resources:";
   font-weight: bold;
 }
+
+form .table {
+  display: table;
+}
+
+form .table > .row {
+  display: table-row;
+}
+
+form .table > .row > .cell {
+  display: table-cell;
+}
+
+form .table > .row > .cell:first-child {
+  width: min-content;
+}
+
+form .table > .row:nth-child(even) {
+  background-color: rgb(149, 174, 197);
+}

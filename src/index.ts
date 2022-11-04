@@ -1,12 +1,12 @@
-import { Color } from "@esri/arcgis-rest-types";
+import { Color, ISymbol } from "@esri/arcgis-rest-types";
 import { load } from "webfontloader";
 import { getServerInfo } from "./arcGisServerRequests";
 import { colorToDom } from "./colorUtils";
 import { createDatumXFormTable } from "./datumUtils";
-import { ILinkInfo } from "./interfaces";
+import { IDatumTransformation, ILinkInfo } from "./interfaces";
 import { createLayerList } from "./Layer";
 import { createLegendDom, createLegendList, ILegendResponse } from "./legend";
-import { symbolToDom } from "./symbols";
+import { IsPictureSymbol, symbolToDom } from "./symbols";
 import {
   getServiceUrl,
   getServiceUrlParts,
@@ -156,13 +156,14 @@ function arrayToElement(arr: any[], propertyName?: string) {
   return list;
 }
 
+
 /**
  * Converts an object into a DOM node.
  * @param o any type of JavaScript object or value.
  * @returns if the input is a standard object, returned value will be an HTMLDListElement.
  * For other types, such as string, number, boolean, or Date, a Text element will be returned
  */
-function toDomElement(o: any, propertyName?: string) {
+function toDomElement(o: unknown, propertyName?: string) {
   if (o == null) {
     return document.createTextNode(o === null ? "null" : "undefined");
   }
@@ -173,26 +174,28 @@ function toDomElement(o: any, propertyName?: string) {
 
   if (propertyName) {
     // if propertyName ends with "url" and is not a hex number...
-    if (o && /Url$/i.test(propertyName) && !/^[0-9a-f]+$/i.test(o)) {
-      const a = document.createElement("a");
-      a.textContent = o;
-      a.href = o;
-      return a;
+    if (typeof o === "string") {
+      if (/Url$/i.test(propertyName) && !/^[0-9a-f]+$/i.test(o)) {
+        const a = document.createElement("a");
+        a.textContent = o;
+        a.href = o;
+        return a;
+      }
+      if (/^(?:latest)?[Ww]kid$/.test(propertyName)) {
+        const a = document.createElement("a");
+        a.innerText = o;
+        a.href = `https://epsg.io/${o}`;
+        a.target = "epsg";
+        return a;
+      }
     }
-    if (/^(?:latest)?[Ww]kid$/.test(propertyName)) {
-      const a = document.createElement("a");
-      a.innerText = o;
-      a.href = `https://epsg.io/${o}`;
-      a.target = "epsg";
-      return a;
-    }
-    if (propertyName === "datumTransformations") {
+    if (propertyName === "datumTransformations" && Array.isArray(o)) {
       return createDatumXFormTable(o);
     }
   }
 
   // Try symbol
-  const symbolImg = symbolToDom(o);
+  const symbolImg = IsPictureSymbol(o) ? symbolToDom(o) : null;
   if (symbolImg) {
     return symbolImg;
   }
@@ -209,24 +212,27 @@ function toDomElement(o: any, propertyName?: string) {
     return document.createTextNode(`${o}`);
   }
 
-  const dl = document.createElement("dl");
+  if (typeof o === "object") {
 
-  for (const key in o) {
-    if (Object.prototype.hasOwnProperty.call(o, key)) {
-      const value = o[key];
-      const dt = document.createElement("dt");
-      dt.innerText = key;
-      const dd = document.createElement("dd");
-      const content = toDomElement(value, key);
-      if (content) {
-        dd.appendChild(content);
+    const dl = document.createElement("dl");
+
+    for (const key in o) {
+      if (Object.prototype.hasOwnProperty.call(o, key)) {
+        const value = (o as Record<string, unknown>)[key];
+        const dt = document.createElement("dt");
+        dt.innerText = key;
+        const dd = document.createElement("dd");
+        const content = toDomElement(value, key);
+        if (content) {
+          dd.appendChild(content);
+        }
+
+        [dt, dd].forEach((element) => dl.appendChild(element));
       }
-
-      [dt, dd].forEach((element) => dl.appendChild(element));
     }
-  }
 
-  return dl;
+    return dl;
+  }
 }
 
 /**
@@ -315,18 +321,18 @@ function createLinksList(url: string) {
 function setupQueryForm(serverUrl: string) {
   console.debug(`${serverUrl} is a layer query URL`);
   const templateSelector = "template#queryFormTemplate";
-  const template = document.body.querySelector<HTMLTemplateElement>(
-    templateSelector
-  );
+  const template =
+    document.body.querySelector<HTMLTemplateElement>(templateSelector);
   if (!template) {
     throw new TypeError(`Could not find "${templateSelector}"`);
   }
   // Clone the template content, which in this case is a <form>.
   const fragment = template.content.cloneNode(true);
 
-  
-  const forms = Array.from(fragment.childNodes).filter(c => c instanceof HTMLFormElement);
-  
+  const forms = Array.from(fragment.childNodes).filter(
+    (c) => c instanceof HTMLFormElement
+  );
+
   const form = forms.length ? (forms[0] as HTMLFormElement) : null;
 
   if (!(form instanceof HTMLFormElement)) {
@@ -341,9 +347,7 @@ function setupQueryForm(serverUrl: string) {
   //   // stop form from being submitted.
   //   e.preventDefault();
   // });
-
 }
-
 
 load({
   google: {
@@ -377,7 +381,6 @@ load({
   }
   if (isLayerQueryUrl(serverUrl)) {
     setupQueryForm(serverUrl);
-
   } else {
     console.debug(`${serverUrl} is not a layer query URL`);
 
@@ -402,5 +405,3 @@ load({
     }
   }
 })();
-
-

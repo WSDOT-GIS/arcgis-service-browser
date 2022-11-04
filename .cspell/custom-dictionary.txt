@@ -1,0 +1,5 @@
+# Custom Dictionary Words
+epsg
+ghpages
+lods
+Noto

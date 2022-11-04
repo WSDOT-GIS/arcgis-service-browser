@@ -1,8 +1,9 @@
-import {
+import type {
   IPictureFillSymbol,
   IPictureMarkerSymbol,
   ISimpleFillSymbol,
   ISimpleLineSymbol,
+  ISimpleMarkerSymbol,
   ISymbol,
   SimpleFillSymbolStyle,
   SimpleLineSymbolStyle,
@@ -36,8 +37,8 @@ export function pictureSymbolToImage(
   let url: string | null = null;
   if (pms.imageData && pms.contentType) {
     url = `data:${pms.contentType};base64,${pms.imageData}`;
-  } else if (isHexString(pms.url!)) {
-    url = toSymbolUrl(pms.url!);
+  } else if (isHexString(pms.url)) {
+    url = toSymbolUrl(pms.url);
   }
   if (url) {
     const img = document.createElement("img");
@@ -149,16 +150,48 @@ function sfsToDom(
   return div;
 }
 
+interface IHasTypeString extends Record<string, unknown> {
+  type: string;
+}
+
+function hasTypeString(o: unknown): o is IHasTypeString {
+  return (
+    typeof o === "object" &&
+    Object.prototype.hasOwnProperty.call(o, "type") &&
+    typeof (o as Record<string, string>)["type"] === "string"
+  );
+}
+
+export function isISymbol(o: unknown): o is ISymbol {
+  return hasTypeString(o) && /^esri(([SP][FM])|T)$/.test(o.type);
+}
+
+export function IsPictureSymbol(
+  o: unknown
+): o is IPictureFillSymbol | IPictureMarkerSymbol {
+  return hasTypeString(o) && /^esriP[MF]S$/.test(o.type);
+}
+
+export function IsSimpleSymbol(
+  o: unknown
+): o is ISimpleFillSymbol | ISimpleLineSymbol | ISimpleMarkerSymbol {
+  return hasTypeString(o) && /^esriS[MFL]S$/.test(o.type);
+}
+
+export function IsSimpleFillSymbol(o: unknown): o is SimpleFillSymbolStyle {
+  return hasTypeString(o) && /^esriSFS$/.test(o.type);
+}
+
 /**
  * Converts a symbol object to an img if possible.
  * @param symbolObject A symbol object.
  */
 export function symbolToDom(symbolObject: ISymbol) {
-  if (/^esriP[MF]S$/.test(symbolObject.type)) {
-    return pictureSymbolToImage(symbolObject as IPictureMarkerSymbol);
+  if (IsPictureSymbol(symbolObject)) {
+    return pictureSymbolToImage(symbolObject);
   }
-  // if (/^esriSFS$/.test(symbolObject.type)) {
-  //   return sfsToDom(symbolObject as ISimpleFillSymbol);
-  // }
+  if (IsSimpleFillSymbol(symbolObject)) {
+    return sfsToDom(symbolObject as ISimpleFillSymbol);
+  }
   return null;
 }
