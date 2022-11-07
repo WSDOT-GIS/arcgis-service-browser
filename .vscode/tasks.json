@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"icon": {
+				"id": "eye-watch",
+				"color": "terminal.ansiCyan"
+			},
+			"script": "watch",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: watch",
+			"detail": "webpack -w"
+		}
+	]
+}
