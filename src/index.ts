@@ -6,6 +6,7 @@ import { createDatumXFormTable } from "./datumUtils";
 import { IDatumTransformation, ILinkInfo } from "./interfaces";
 import { createLayerList } from "./Layer";
 import { createLegendDom, createLegendList, ILegendResponse } from "./legend";
+import { setupQueryForm } from "./queryUtils";
 import { IsPictureSymbol, symbolToDom } from "./symbols";
 import {
   getServiceUrl,
@@ -359,37 +360,6 @@ function createLinksList(url: string) {
   links.forEach(createListItem);
 
   return list;
-}
-
-function setupQueryForm(serverUrl: string) {
-  console.debug(`${serverUrl} is a layer query URL`);
-  const templateSelector = "template#queryFormTemplate";
-  const template =
-    document.body.querySelector<HTMLTemplateElement>(templateSelector);
-  if (!template) {
-    throw new TypeError(`Could not find "${templateSelector}"`);
-  }
-  // Clone the template content, which in this case is a <form>.
-  const fragment = template.content.cloneNode(true);
-
-  const forms = Array.from(fragment.childNodes).filter(
-    (c) => c instanceof HTMLFormElement
-  );
-
-  const form = forms.length ? (forms[0] as HTMLFormElement) : null;
-
-  if (!(form instanceof HTMLFormElement)) {
-    throw new TypeError("Could not find form");
-  }
-
-  document.body.append(fragment);
-
-  form.action = serverUrl;
-
-  // form.addEventListener("submit", (e) => {
-  //   // stop form from being submitted.
-  //   e.preventDefault();
-  // });
 }
 
 load({
