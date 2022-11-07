@@ -156,7 +156,6 @@ function arrayToElement(arr: any[], propertyName?: string) {
   return list;
 }
 
-
 /**
  * Converts an object into a DOM node.
  * @param o any type of JavaScript object or value.

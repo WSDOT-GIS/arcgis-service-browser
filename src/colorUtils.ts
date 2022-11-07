@@ -1,7 +1,5 @@
 import { Color } from "@esri/arcgis-rest-types";
 
-
-
 export function isHexString(s?: string): s is string {
   if (!s) {
     return false;
