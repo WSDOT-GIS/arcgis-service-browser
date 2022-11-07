@@ -35,7 +35,7 @@
     <form>
       <div class="table">
         <div class="row">
-          <div class="cell"><label for="where">Where:</label></div>
+          <div class="cell"><label for="where">Where</label></div>
           <div class="cell">
             <input type="text" id="where" name="where" list="where-choices">
             <datalist id="where-choices">
@@ -44,19 +44,19 @@
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="text">Text:</label></div>
+          <div class="cell"><label for="text">Text</label></div>
           <div class="cell"><input type="text" id="text" name="text"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="objectIds">Object IDs:</label></div>
+          <div class="cell"><label for="objectIds">Object IDs</label></div>
           <div class="cell"><input type="text" id="objectIds" name="objectIds"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="time">Time:</label></div>
+          <div class="cell"><label for="time">Time</label></div>
           <div class="cell"><input type="text" id="time" name="time"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="timeRelation">Time Relation:</label></div>
+          <div class="cell"><label for="timeRelation">Time Relation</label></div>
           <div class="cell">
             <select id="timeRelation" name="timeRelation">
               <option value="esriTimeRelationOverlaps">Include start and end</option>
@@ -67,13 +67,13 @@
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="geometry">Input Geometry:</label></div>
+          <div class="cell"><label for="geometry">Input Geometry</label></div>
           <div class="cell">
             <textarea id="geometry" name="geometry" rows="5" cols="55"></textarea>
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="geometryType">Geometry Type:</label></div>
+          <div class="cell"><label for="geometryType">Geometry Type</label></div>
           <div class="cell">
             <select id="geometryType" name="geometryType">
               <option value="esriGeometryEnvelope">Envelope</option>
@@ -85,11 +85,11 @@
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="inSR">Input Spatial Reference:</label></div>
+          <div class="cell"><label for="inSR">Input Spatial Reference</label></div>
           <div class="cell"><input type="text" id="inSR" name="inSR"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="spatialRel">Spatial Relationship:</label></div>
+          <div class="cell"><label for="spatialRel">Spatial Relationship</label></div>
           <div class="cell">
             <select id="spatialRel" name="spatialRel">
               <option value="esriSpatialRelIntersects">Intersects</option>
@@ -105,11 +105,11 @@
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="distance">Distance:</label></div>
+          <div class="cell"><label for="distance">Distance</label></div>
           <div class="cell"><input type="text" id="distance" name="distance"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="units">Units:</label></div>
+          <div class="cell"><label for="units">Units</label></div>
           <div class="cell">
             <select id="units" name="units">
               <option value="esriSRUnit_Foot">Feet</option>
@@ -122,124 +122,124 @@
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="relationParam">Relation:</label></div>
+          <div class="cell"><label for="relationParam">Relation</label></div>
           <div class="cell"><input type="text" id="relationParam" name="relationParam"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="outFields">Out Fields:</label></div>
+          <div class="cell"><label for="outFields">Out Fields</label></div>
           <div class="cell"><input type="text" id="outFields" name="outFields"></div>
         </div>
         <div class="row">
-          <div class="cell">Return Geometry:</div>
+          <div class="cell"><label for="returnGeometry">Return Geometry</label></div>
           <div class="cell">
             <!-- <label><input type="radio" name="returnGeometry" value="true" checked="true"> True &nbsp;</label>
               <label><input type="radio" name="returnGeometry" value="false"> False</label> -->
-            <input type="checkbox" name="returnGeometry" checked />
+            <input type="checkbox" id="returnGeometry" name="returnGeometry" checked/>
           </div>
         </div>
         <div class="row">
-          <div class="cell">Return True Curves:</div>
+          <div class="cell"><label for="returnTrueCurves">Return True Curves</label></div>
           <div class="cell">
             <!-- <label><input type="radio" name="returnTrueCurves" value="true"> True &nbsp;</label>
               <label><input type="radio" name="returnTrueCurves" value="false" checked="true"> False</label> -->
-            <input type="checkbox" name="returnTrueCurves" />
+            <input type="checkbox" id="returnTrueCurves" name="returnTrueCurves"/>
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="maxAllowableOffset">Max Allowable Offset:</label></div>
+          <div class="cell"><label for="maxAllowableOffset">Max Allowable Offset</label></div>
           <div class="cell"><input type="text" id="maxAllowableOffset" name="maxAllowableOffset"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="geometryPrecision">Geometry Precision:</label></div>
+          <div class="cell"><label for="geometryPrecision">Geometry Precision</label></div>
           <div class="cell"><input type="text" id="geometryPrecision" name="geometryPrecision"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="outSR">Output Spatial Reference:</label></div>
+          <div class="cell"><label for="outSR">Output Spatial Reference</label></div>
           <div class="cell"><input type="text" id="outSR" name="outSR"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="havingClause">Having Clause:</label></div>
+          <div class="cell"><label for="havingClause">Having Clause</label></div>
           <div class="cell"><input type="text" id="havingClause" name="havingClause"></div>
         </div>
         <div class="row">
-          <div class="cell">Return IDs Only:</div>
+          <div class="cell"><label for="returnIdsOnly">Return IDs Only</label></div>
           <div class="cell">
             <!-- <label><input type="radio" name="returnIdsOnly" value="true"> True &nbsp;</label>
               <label><input type="radio" name="returnIdsOnly" value="false" checked="true"> False</label> -->
-            <input type="checkbox" name="returnIdsOnly" />
+            <input type="checkbox" id="returnIdsOnly" name="returnIdsOnly"/>
           </div>
         </div>
         <div class="row">
-          <div class="cell">Return Count Only:</div>
+          <div class="cell"><label for="returnCountOnly">Return Count Only</label></div>
           <div class="cell">
             <!-- <label><input type="radio" name="returnCountOnly" value="true"> True &nbsp;</label>
               <label><input type="radio" name="returnCountOnly" value="false" checked="true"> False</label> -->
-            <input type="checkbox" name="returnCountOnly" />
+            <input type="checkbox" id="returnCountOnly" name="returnCountOnly"/>
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="orderByFields">Order By Fields:</label></div>
+          <div class="cell"><label for="orderByFields">Order By Fields</label></div>
           <div class="cell"><input type="text" id="orderByFields" name="orderByFields"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="groupByFieldsForStatistics">Group By Fields (For Statistics):</label></div>
+          <div class="cell"><label for="groupByFieldsForStatistics">Group By Fields (For Statistics)</label></div>
           <div class="cell"><input type="text" id="groupByFieldsForStatistics" name="groupByFieldsForStatistics">
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="outStatistics">Output Statistics:</label></div>
+          <div class="cell"><label for="outStatistics">Output Statistics</label></div>
           <div class="cell"><textarea id="outStatistics" name="outStatistics" rows="5" cols="55"></textarea></div>
         </div>
         <div class="row">
-          <div class="cell">ReturnZ:</div>
+          <div class="cell"><label for="returnZ">ReturnZ</label></div>
           <div class="cell">
             <!-- <label><input type="radio" name="returnZ" value="true"> True &nbsp;</label>
               <label><input type="radio" name="returnZ" value="false" checked="true"> False</label> -->
-            <input type="checkbox" name="returnZ" />
+            <input type="checkbox" id="returnZ" name="returnZ"/>
           </div>
         </div>
         <div class="row">
-          <div class="cell">ReturnM:</div>
+          <div class="cell"><label for="returnM">ReturnM</label></div>
           <div class="cell">
             <!-- <label><input type="radio" name="returnM" value="true"> True &nbsp;</label>
               <label><input type="radio" name="returnM" value="false" checked="true"> False</label> -->
-            <input type="checkbox" name="returnM" />
+            <input type="checkbox" id="returnM" name="returnM"/>
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="gdbVersion">Geodatabase Version Name:</label></div>
+          <div class="cell"><label for="gdbVersion">Geodatabase Version Name</label></div>
           <div class="cell"><input type="text" id="gdbVersion" name="gdbVersion"></div>
         </div>
         <div class="row">
-          <div class="cell">Historic Moment:</div>
-          <div class="cell"><input type="text" name="historicMoment"></div>
+          <div class="cell"><label for="historicMoment">Historic Moment</label></div>
+          <div class="cell"><input type="text" id="historicMoment" name="historicMoment"></div>
         </div>
         <div class="row">
-          <div class="cell">Return Distinct Values:</div>
+          <div class="cell"><label for="returnDistinctValues">Return Distinct Values</label></div>
           <div class="cell">
             <!-- <label><input type="radio" name="returnDistinctValues" value="true"> True &nbsp;</label>
               <label><input type="radio" name="returnDistinctValues" value="false" checked="true"> False</label> -->
-            <input type="checkbox" name="returnDistinctValues" />
+            <input type="checkbox" id="returnDistinctValues" name="returnDistinctValues"/>
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="resultOffset">Result Offset:</label></div>
+          <div class="cell"><label for="resultOffset">Result Offset</label></div>
           <div class="cell"><input type="text" id="resultOffset" name="resultOffset"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="resultRecordCount">Result Record Count:</label></div>
+          <div class="cell"><label for="resultRecordCount">Result Record Count</label></div>
           <div class="cell"><input type="text" id="resultRecordCount" name="resultRecordCount"></div>
         </div>
         <div class="row">
-          <div class="cell">Return Extents Only:</div>
+          <div class="cell"><label  for="returnExtentOnly">Return Extents Only</label></div>
           <div class="cell">
             <!-- <label><input type="radio" name="returnExtentOnly" value="true"> True &nbsp;</label>
               <label><input type="radio" name="returnExtentOnly" value="false" checked="true"> False</label> -->
-            <input type="checkbox" name="returnExtentOnly" />
+            <input type="checkbox" id="returnExtentOnly" name="returnExtentOnly"/>
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="sqlFormat">SQL Format:</label></div>
+          <div class="cell"><label for="sqlFormat">SQL Format</label></div>
           <div class="cell">
             <select id="sqlFormat" name="sqlFormat">
               <option value="none">None</option>
@@ -249,23 +249,23 @@
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="datumTransformation">Datum Transformation:</label></div>
+          <div class="cell"><label for="datumTransformation">Datum Transformation</label></div>
           <div class="cell"><input type="text" id="datumTransformation" name="datumTransformation"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="parameterValues">Parameter Values:</label></div>
+          <div class="cell"><label for="parameterValues">Parameter Values</label></div>
           <div class="cell"><input type="text" id="parameterValues" name="parameterValues"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="rangeValues">Range Values:</label></div>
+          <div class="cell"><label for="rangeValues">Range Values</label></div>
           <div class="cell"><input type="text" id="rangeValues" name="rangeValues"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="quantizationParameters">Quantization Parameters:</label></div>
+          <div class="cell"><label for="quantizationParameters">Quantization Parameters</label></div>
           <div class="cell"><input type="text" id="quantizationParameters" name="quantizationParameters"></div>
         </div>
         <div class="row">
-          <div class="cell"><label for="featureEncoding">Feature Encoding:</label></div>
+          <div class="cell"><label for="featureEncoding">Feature Encoding</label></div>
           <div class="cell">
             <select id="featureEncoding" name="featureEncoding">
               <option value="esriDefault">EsriDefault</option>
@@ -273,7 +273,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="cell"><label for="f">Format:</label></div>
+          <div class="cell"><label for="f">Format</label></div>
           <div class="cell">
             <select id="f" name="f">
               <option value="html">HTML</option>
@@ -286,10 +286,10 @@
         </div>
         <div class="row">
           <div class="cell">
-            <label for="metionSelect">Query method</label>
+            <label for="methodSelect">Query method</label>
           </div>
           <div class="cell">
-            <select id="metionSelect">
+            <select id="methodSelect">
               <option value="get">GET</option>
               <option value="post">POST</option>
             </select>
