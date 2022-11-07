@@ -1,7 +1,7 @@
-import { Color, ISymbol } from "@esri/arcgis-rest-types";
+import { Color } from "@esri/arcgis-rest-types";
 import { load } from "webfontloader";
 import { getServerInfo } from "./arcGisServerRequests";
-import { colorToDom } from "./colorUtils";
+import { colorToDom, isRgbOrRgbA } from "./colorUtils";
 import { createDatumXFormTable } from "./datumUtils";
 import { IDatumTransformation, ILinkInfo } from "./interfaces";
 import { createLayerList } from "./Layer";
@@ -84,9 +84,12 @@ function arrayToTable(
   return body.childElementCount ? table : null;
 }
 
-function arrayToElement(arr: any[], propertyName?: string) {
+function arrayToElement(arr: never[], propertyName?: string) {
   const currentUrl = getUrlSearchParam();
-  const isLayersUrl = /\/layers\/?$/.test(currentUrl!);
+  if (!currentUrl) {
+    return null;
+  }
+  const isLayersUrl = /\/layers\/?$/.test(currentUrl);
   if (propertyName) {
     if (propertyName === "layers" && !isLayersUrl) {
       return createLayerList(arr);
@@ -132,7 +135,7 @@ function arrayToElement(arr: any[], propertyName?: string) {
       return taskList;
     }
 
-    if (propertyName === "color") {
+    if (propertyName === "color" && isRgbOrRgbA(arr)) {
       return colorToDom(arr as Color);
     }
   }
@@ -142,18 +145,27 @@ function arrayToElement(arr: any[], propertyName?: string) {
     list.classList.add(`property--${propertyName}`);
   }
 
-  arr
-    .map((item) => {
-      const element = toDomElement(item);
-      if (element) {
-        const li = document.createElement("li");
-        li.appendChild(element);
-        return li;
-      }
-    })
-    .filter((li) => li !== undefined)
-    .forEach((li) => list.appendChild(li!));
+  for (const item of arr) {
+    if (item == null) {
+      continue;
+    }
+    const li = createListItem(item);
+    if (li) {
+      list.appendChild(li);
+    }
+  }
+
   return list;
+}
+
+function createListItem(item: Element): HTMLLIElement | null {
+  const element = toDomElement(item);
+  if (element) {
+    const li = document.createElement("li");
+    li.appendChild(element);
+    return li;
+  }
+  return null;
 }
 
 /**
@@ -180,7 +192,18 @@ function toDomElement<T extends Record<string, unknown>>(
   propertyName?: string
 ): HTMLDListElement;
 function toDomElement(o?: null, propertyName?: string): Text;
-function toDomElement(o: unknown, propertyName?: string) {
+function toDomElement(
+  o: unknown,
+  propertyName?: string
+):
+  | Element
+  | DocumentFragment
+  | HTMLDListElement
+  | HTMLTableElement
+  | HTMLImageElement
+  | HTMLInputElement
+  | Text
+  | null {
   if (o == null) {
     return document.createTextNode(o === null ? "null" : "undefined");
   }
@@ -218,7 +241,7 @@ function toDomElement(o: unknown, propertyName?: string) {
   }
 
   if (Array.isArray(o)) {
-    return arrayToElement(o, propertyName);
+    return arrayToElement(o as never[], propertyName);
   }
 
   if (typeof o === "boolean") {
@@ -287,7 +310,11 @@ function createBreadcrumbs() {
 createBreadcrumbs();
 
 function createLinksList(url: string) {
-  const { service, tool: toolName, layer } = getServiceUrlParts(url)!;
+  const serviceParts = getServiceUrlParts(url);
+  if (!serviceParts) {
+    return;
+  }
+  const { service, tool: toolName, layer } = serviceParts;
 
   // Exit if deeper than service level.
   if (!service || toolName || layer) {

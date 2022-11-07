@@ -88,6 +88,11 @@ export interface IParsedUrls {
   tool: string | null;
 }
 
+/**
+ * Tests to see if the given url is a layer query URL.
+ * @param url - A url
+ * @returns - True if the URL is a layer query URL, false otherwise.
+ */
 export function isLayerQueryUrl(url: string | URL): boolean {
   const layerQueryUrl = /\b((Map)|(Feature))Server\/\d+\/query/gi;
 
