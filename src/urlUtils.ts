@@ -1,4 +1,12 @@
 import { UnexpectedUrlFormatError } from "./UnexpectedUrlFormatError";
+import type {
+  ArcGisRestServicesUrl,
+  ServiceUrl,
+  ServiceType,
+  FolderUrl,
+  LayerUrl,
+  GPToolUrl,
+} from "./UrlTypes";
 
 /**
  * Gets the value of the "url" search parameter from location.search.
@@ -14,7 +22,9 @@ export function getUrlSearchParam(): string | null {
  * Extracts the server root URL.
  * @param url Server, service, layer, or other server resource URL
  */
-export function getServerRoot(url: string | null = getUrlSearchParam()) {
+export function getServerRoot(
+  url: string | null = getUrlSearchParam()
+): ArcGisRestServicesUrl {
   if (url == null) {
     throw new TypeError("Input URL should not be null");
   }
@@ -26,16 +36,18 @@ export function getServerRoot(url: string | null = getUrlSearchParam()) {
   // Add the "services" portion if missing.
   if (!match[1]) {
     // return new URL("services", match[0]).toString();
-    return `${match[0]}/services`;
+    return `${match[0]}/services` as ArcGisRestServicesUrl;
   }
-  return match[0];
+  return match[0] as ArcGisRestServicesUrl;
 }
 
 /**
  * Extracts the (Map, Feature, GP, etc.) service URL.
  * @param url
  */
-export function getServiceUrl(url: string | null = getUrlSearchParam()) {
+export function getServiceUrl<T extends ServiceType>(
+  url: string | null = getUrlSearchParam()
+): ServiceUrl<T> {
   if (url == null) {
     throw new TypeError("Input URL should not be null");
   }
@@ -44,7 +56,7 @@ export function getServiceUrl(url: string | null = getUrlSearchParam()) {
   if (!match) {
     throw new UnexpectedUrlFormatError(url, re);
   }
-  return match[0];
+  return match[0] as ServiceUrl<T>;
 }
 
 /**
@@ -66,26 +78,26 @@ export interface IParsedUrls {
   /**
    * E.g., https://www.example.com/arcgis/rest/services
    */
-  root: string;
+  root: ArcGisRestServicesUrl;
   /**
    * E.g., https://www.example.com/arcgis/rest/services/MyFolder
    */
-  folder: string | null;
+  folder: FolderUrl | null;
   /**
    * E.g., https://www.example.com/arcgis/rest/services/MyFolder/MyService/MapServer
    * E.g., https://www.example.com/arcgis/rest/services/MyService/MapServer
    */
-  service: string | null;
+  service: ServiceUrl<ServiceType> | null;
   /**
    * E.g., https://www.example.com/arcgis/rest/services/MyFolder/MyService/MapServer/0
    * E.g., https://www.example.com/arcgis/rest/services/MyService/MapServer/0
    */
-  layer: string | null;
+  layer: LayerUrl | null;
   /**
    * E.g., https://www.example.com/arcgis/rest/services/MyFolder/MyServiceGPServer/MyToolName
    * E.g., https://www.example.com/arcgis/rest/services/MyService/GPServer/MyToolName
    */
-  tool: string | null;
+  tool: GPToolUrl | null;
 }
 
 /**
@@ -137,16 +149,16 @@ export function getServiceUrlParts(
     const [, rootUrl, folder, serviceName, serviceType, layerId] = match;
 
     const service = serviceName
-      ? `${rootUrl}/${
+      ? (`${rootUrl}/${
           folder ? [folder, serviceName].join("/") : serviceName
-        }/${serviceType}`
+        }/${serviceType}` as ServiceUrl<ServiceType>)
       : null;
 
     return {
-      root: rootUrl,
-      folder: folder ? `${rootUrl}/${folder}` : null,
+      root: rootUrl as ArcGisRestServicesUrl,
+      folder: folder ? (`${rootUrl}/${folder}` as FolderUrl) : null,
       service,
-      layer: service && layerId ? `${service}/${layerId}` : null,
+      layer: service && layerId ? (`${service}/${layerId}` as LayerUrl) : null,
       tool: null,
     };
   }
@@ -156,17 +168,18 @@ export function getServiceUrlParts(
     const [, rootUrl, folder, serviceName, serviceType, toolName] = gpMatch;
 
     const service = serviceName
-      ? `${rootUrl}/${
+      ? (`${rootUrl}/${
           folder ? [folder, serviceName].join("/") : serviceName
-        }/${serviceType}`
+        }/${serviceType}` as ServiceUrl<ServiceType>)
       : null;
 
     return {
-      root: rootUrl,
-      folder: folder ? `${rootUrl}/${folder}` : null,
+      root: rootUrl as ArcGisRestServicesUrl,
+      folder: folder ? (`${rootUrl}/${folder}` as FolderUrl) : null,
       service,
       layer: null,
-      tool: service && toolName ? `${service}/${toolName}` : null,
+      tool:
+        service && toolName ? (`${service}/${toolName}` as GPToolUrl) : null,
     };
   }
 
