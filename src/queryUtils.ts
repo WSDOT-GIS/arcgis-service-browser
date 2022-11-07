@@ -1,9 +1,18 @@
 const checkboxSelector = "input[type=checkbox]";
 
-function setAllCheckboxesToIndeterminate(form: HTMLFormElement) {
-  form
-    .querySelectorAll<HTMLInputElement>(checkboxSelector)
-    .forEach((cb) => (cb.indeterminate = true));
+/**
+ * Sets all the given checkboxes to the indeterminate state.
+ * @param formOrInputList - An HTML form or a Node list of {@link HTMLInputElement}.
+ * @returns
+ */
+export function setAllCheckboxesToIndeterminate(
+  formOrInputList: HTMLFormElement | NodeListOf<HTMLInputElement>
+) {
+  const inputList = !(formOrInputList instanceof HTMLFormElement)
+    ? formOrInputList
+    : formOrInputList.querySelectorAll<HTMLInputElement>(checkboxSelector);
+  inputList.forEach((cb) => (cb.indeterminate = true));
+  return inputList;
 }
 
 export function setupQueryForm(serverUrl: string) {
@@ -34,9 +43,16 @@ export function setupQueryForm(serverUrl: string) {
   // Set all checkboxes to be indeterminate.
   setAllCheckboxesToIndeterminate(form);
 
-  form.addEventListener("reset", function () {
-    setAllCheckboxesToIndeterminate(this);
-  });
+  // Add reset button.
+  form.addEventListener(
+    "reset",
+    function () {
+      setAllCheckboxesToIndeterminate(this);
+    },
+    {
+      passive: true,
+    }
+  );
 
   // form.addEventListener("submit", (e) => {
   //   // stop form from being submitted.
